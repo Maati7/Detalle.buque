@@ -9,6 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
 <style>
 :root{
   --paper:#F4F7FA; --card:#FFFFFF; --ink:#172A3A; --harbor:#1F4E79; --harbor-2:#2C6AA0;
@@ -149,6 +152,29 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
 .lscard table{font-size:13px}
 .lscard th,.lscard td{padding:6px 8px}
 .lscard td.vacio{background:var(--amber-bg)}
+.apikey{margin-top:16px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 16px}
+.apikey p{margin:0 0 10px;color:var(--steel);font-size:15px}
+.apikey .row{display:flex;gap:10px;flex-wrap:wrap}
+.apikey input{flex:1 1 260px;font:500 16px/1.3 Barlow,sans-serif;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;min-width:0}
+.leyendo{margin-top:16px;padding:14px 16px;border-radius:10px;background:var(--card);border:1px solid var(--rule);color:var(--harbor);font-weight:600}
+.tedit{font-size:14px}
+.tedit th,.tedit td{padding:4px 6px}
+.tedit input{font:500 15px/1.3 Barlow,sans-serif;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:5px 6px;width:100%;min-width:0;background:var(--paper)}
+.tedit td.b input{width:74px;text-align:right}
+.tedit td.f input{width:140px}.tedit td.tu input{width:80px}.tedit td.m input{width:52px;text-align:right}
+.tedit .x{border:0;background:transparent;color:var(--steel);font-size:18px;width:32px;height:32px;border-radius:6px}
+.tedit .x:hover{background:var(--paper)}
+.tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
+.tools label{display:flex;align-items:center;gap:8px;color:var(--steel);font-size:15px}
+.tools input{width:60px;font:500 16px Barlow,sans-serif;border:1px solid var(--rule);border-radius:6px;padding:6px 8px}
+.tools .btn{padding:9px 16px;font-size:15px}
+.dem li{flex-wrap:wrap}
+.dem .ed{display:grid;grid-template-columns:150px 100px 100px minmax(160px,1fr) auto auto;gap:6px;align-items:center;flex:1;min-width:0}
+@media (max-width:640px){.dem .ed{grid-template-columns:1fr 1fr 1fr}.dem .ed .mo{grid-column:1/-1}}
+.dem .ed input{font:500 15px/1.3 Barlow,sans-serif;color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:5px 6px;width:100%;min-width:0;background:var(--paper)}
+.dem .ed input.falta{border-color:var(--amber);background:var(--amber-bg)}
+.dem li.off .ed input{opacity:.45;text-decoration:line-through}
+.dem .x{border:0;background:transparent;color:var(--steel);font-size:18px;width:32px;height:32px;border-radius:6px}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--harbor-2);outline-offset:2px}
 </style>
@@ -157,15 +183,21 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
 <div class="wrap">
   <header class="top">
     <h1>Detalle de buque</h1>
-    <button class="link" id="otro" hidden>Cargar otro Excel</button>
+    <button class="link" id="otro" hidden>Cargar otro archivo</button>
   </header>
 
   <label class="drop" id="drop">
-    <strong>Subí el Excel de Sergio</strong>
-    <p>Leo la planilla de carga, completo todo lo que se pueda y después te pido solo los datos que no están ahí.</p>
+    <strong>Subí el Excel de Sergio o el parte escrito a mano</strong>
+    <p>Del Excel leo la planilla de carga. Del parte leo la letra a mano: un PDF escaneado o fotos (si la carga por turno está en otra hoja, subí las fotos juntas). Completo todo lo que se pueda y después te pido solo lo que falta.</p>
     <span class="btn">Elegir archivo</span>
-    <input type="file" id="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+    <input type="file" id="file" multiple accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,image/*">
   </label>
+  <p style="text-align:center;margin:10px 0 0"><button class="link" id="sinLeer">O completá el parte a mano, sin leerlo</button></p>
+  <div class="leyendo" id="leyendo" role="status" hidden></div>
+  <div class="apikey" id="apikey" hidden>
+    <p id="apikeyMsg">Para leer la letra a mano, la app le manda la imagen a Claude. Pegá acá tu clave de la API de Anthropic (empieza con sk-ant-). Queda guardada solo en este navegador.</p>
+    <div class="row"><input type="password" id="apikeyIn" placeholder="sk-ant-…" autocomplete="off" aria-label="Clave de la API de Anthropic"><button class="btn" id="apikeyOk">Guardar y leer</button></div>
+  </div>
   <div class="err" id="err" hidden></div>
 
   <main id="main" hidden>
@@ -188,14 +220,21 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
     <div id="tabPlanilla">
     <section class="block">
       <h2>Completar a mano</h2>
-      <p class="lead">Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.</p>
+      <p class="lead" id="lManual">Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.</p>
       <div class="grid" id="gManual"></div>
     </section>
 
     <section class="block">
-      <h2>Datos del Excel de Sergio</h2>
-      <p class="lead">Ya están cargados. Revisalos y corregí lo que haga falta.</p>
+      <h2 id="hSergio">Datos del Excel de Sergio</h2>
+      <p class="lead" id="lSergio">Ya están cargados. Revisalos y corregí lo que haga falta.</p>
       <div class="grid" id="gSergio"></div>
+    </section>
+
+    <section class="block" id="secTurnos" hidden>
+      <h2>Toneladas por turno</h2>
+      <p class="lead">Revisá lo que se leyó, o cargalo acá si el parte no trae la carga por turno. La tabla de abajo se arma sola.</p>
+      <div class="tablewrap"><table class="tedit" id="tEdit"></table></div>
+      <div class="tools"><button class="btn alt" id="addTurno">Agregar turno</button><label>Bodegas <input id="nBod" inputmode="numeric" value="7"></label></div>
     </section>
 
     <section class="block">
@@ -218,14 +257,15 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
     </section>
     <section class="block">
       <h2>Cuadro de estadía</h2>
-      <p class="lead">Estadía de atraque a zarpada y efectiva de atraque a fin de carga.</p>
+      <p class="lead">Estadía de atraque a zarpada y efectiva desde el inicio de la efectiva hasta el fin de carga.</p>
       <div class="tablewrap"><table id="tEstadia"></table></div>
       <div class="tablewrap" style="margin-top:12px"><table id="tEfectiva"></table></div>
     </section>
     <section class="block">
       <h2>Demoras sin operatividad</h2>
-      <p class="lead">Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.</p>
+      <p class="lead" id="lDem">Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.</p>
       <div class="tablewrap"><ul class="dem" id="lDemoras"></ul></div>
+      <div class="tools"><button class="btn alt" id="addDem">Agregar demora</button></div>
       <div class="sums">
         <div><small>Efectiva</small><b id="sEfe"></b></div>
         <div><small>Demoras</small><b id="sDem"></b></div>
@@ -444,7 +484,8 @@ function extract(sheets){
       const m=/de\s*(\d{1,2})[:.](\d{2})\s*(?:hs)?\s*a\s*(\d{1,2})[:.](\d{2})/i.exec(seg);if(!m)continue;
       const k=m.slice(1).map(Number).join(':');if(dk.has(k))continue;dk.add(k);
       let a=+m[1]*60+ +m[2],b=+m[3]*60+ +m[4];if(b<a)b+=1440;
-      d.demList.push({txt:seg.trim().replace(/[.\s]+$/,'')+'.',desde:hhmm(m[1],m[2]),hasta:hhmm(m[3],m[4]),mins:b-a,on:true});
+      const motivo=seg.trim().replace(/^.*?de\s*\d{1,2}[:.]\d{2}\s*(?:hs\.?)?\s*a\s*\d{1,2}[:.]\d{2}\s*(?:hs\.?)?\s*/i,'').replace(/[.\s]+$/,'');
+      d.demList.push({fecha:'',desde:hhmm(m[1],m[2]),hasta:hhmm(m[3],m[4]),motivo:motivo||seg.trim().replace(/[.\s]+$/,''),on:true});
     }
   }
   if(mins>0){const h=Math.floor(mins/60),mm=mins%60;d.demoras=(h?`${h} hs${pad(mm)}'`:`${mm}'`)+' LECTURA Y CALCULOS';d.demorasSN='SI';}
@@ -467,7 +508,7 @@ function extract(sheets){
   d.exportador=exO?S(exO.v.replace(/^export\w*\.?\s*:/i,'')):(exps[0]||S(g.below(L(/^exportador\s*$/i))));
   d.multiExp=exps.length>1;d.expTabla=exps[0]||d.exportador;
   if(!d.comenzo_f&&turnos[0])d.comenzo_f=turnos[0].fecha;
-  d.hoja=sh.name;
+  d.hoja=sh.name;d.fuente='excel';
   return d;
 }
 
@@ -511,6 +552,7 @@ const SERGIO=[
 const NOTA=[
   {id:'nroNota',label:'Nº de nota',mode:'numeric',ph:'ej. 2171'},
   {id:'fechaNota',label:'Fecha de la nota',type:'date'},
+  {id:'iniEfe',label:'Inicio de la efectiva',type:'dt'},
   {id:'cc',label:'Con copia a',remember:1,def:'Ing. Matías Palma / Andrés López',wide:1},
   {id:'firma',label:'Firma',type:'firma',wide:1},
 ];
@@ -555,11 +597,14 @@ function renderFields(list,host){
 }
 function hintFor(f){
   const d=state.d;
-  if(f.id==='nro'){const last=store.get('nro','');const parts=[];if(last)parts.push('La última fue '+last+'.');if(d.nroSergio)parts.push('Sergio lo numera '+d.nroSergio+'.');return parts.join(' ');}
+  if(f.id==='nro'){const last=store.get('nro','');const parts=[];if(last)parts.push('La última fue '+last+'.');if(d.nroSergio&&d.fuente==='excel')parts.push('Sergio lo numera '+d.nroSergio+'.');if(d.fuente==='mano'&&S(state.v.nro))parts.push('Leído del parte.');return parts.join(' ');}
   if(f.id==='demoras'&&d.demorasUsadas.length)return 'Sumé lectura y cálculo de '+d.demorasUsadas.join(' y ')+'. Ajustalo si ustedes cuentan otra cosa.';
-  if(f.id==='habilitado'&&d.habilitado_h)return 'Sale de "previa a la carga" en las observaciones de Sergio.';
+  if(f.id==='habilitado'&&d.habilitado_h&&d.fuente==='excel')return 'Sale de "previa a la carga" en las observaciones de Sergio.';
+  if(f.id==='habilitado'&&d.fuente==='mano')return 'Es la habilitación de bodegas del parte.';
+  if(f.id==='iniEfe'&&d.fuente!=='mano')return 'Por defecto es el atraque, como venía saliendo con el Excel de Sergio. Cambialo si la efectiva arrancó en otro horario.';
+  if(f.id==='iniEfe')return 'Por defecto es el comienzo del turno en que empezó la carga (00, 06, 12 o 18 hs), o el atraque si fue más tarde. Cambialo si en este buque corresponde otro horario.';
   if(f.id==='nroNota'){const l=store.get('nroNota','');return l?'La última fue '+l+'.':'';}
-  if(f.id==='atraco')return 'Es el horario oficial de atraque que pone Sergio.';
+  if(f.id==='atraco')return d.fuente==='mano'?'Es el horario de atraque del parte.':'Es el horario oficial de atraque que pone Sergio.';
   if(f.id==='expTabla'&&d.multiExp)return 'Hay más de un exportador: en la tabla va el de cada turno.';
   return f.hint||'';
 }
@@ -574,6 +619,9 @@ function refresh(){
       if(miss){cnt[tab]++;state.first[tab]=state.first[tab]||box;}
     });
   }
+  autoIniEfe();
+  if(state.d.fuente==='mano'&&!state.d.total){cnt.planilla++;state.first.planilla=state.first.planilla||$('secTurnos');}
+  $('stTotal').textContent=state.d.total?fmtTons(state.d.total)+' t':'—';
   renderTabla();renderListado();const notaFalta=renderNota();cnt.nota+=notaFalta.length;state.notaFalta=notaFalta;
   $('cntPlanilla').textContent=cnt.planilla||'';$('cntPlanilla').hidden=!cnt.planilla;
   $('cntNota').textContent=cnt.nota||'';$('cntNota').hidden=!cnt.nota;
@@ -613,7 +661,7 @@ function renderTabla(){
   let h='<tr><th>Fecha</th><th>Turno</th><th class="n">Bodega</th><th class="n">Tons.</th><th class="n">Por turno</th><th class="n">Por día</th></tr>';
   rows.forEach(r=>{h+=`<tr${r.B?' class="first"':''}><td>${r.A?fmtFecha(r.A):''}</td><td>${r.B||''}</td><td class="n">${r.D}</td><td class="n">${fmtTons(r.E)}</td><td class="n">${r.F!=null?fmtTons(r.F):''}</td><td class="n">${r.G!=null?fmtTons(r.G):''}</td></tr>`;});
   h+=`<tr class="sum first"><td colspan="5">Total a bordo</td><td class="n">${fmtTons(state.d.total)}</td></tr>`;
-  $('tCarga').innerHTML=rows.length?h:'<tr><td>No encontré toneladas cargadas en la tabla de Sergio.</td></tr>';
+  $('tCarga').innerHTML=rows.length?h:(state.d.fuente==='mano'?'<tr><td>Todavía no hay toneladas cargadas. Completalas arriba, en Toneladas por turno.</td></tr>':'<tr><td>No encontré toneladas cargadas en la tabla de Sergio.</td></tr>');
   const m=filasManos();
   $('tManos').innerHTML='<tr><th>Fecha</th><th>Turno</th><th class="n">Manos</th></tr>'+(m.length?m.map(x=>`<tr><td>${fmtFecha(x.fecha)}</td><td>${x.turno}</td><td class="n">${x.manos}</td></tr>`).join(''):'<tr><td colspan="3">Sin datos de manos.</td></tr>');
 }
@@ -722,7 +770,9 @@ function listo(tab){
   const i=state.first[tab]&&el.querySelector('input,select');if(i)setTimeout(()=>i.focus({preventScroll:true}),350);
   return false;
 }
-function bajar({blob,fname}){
+async function bajar({blob,fname}){
+  if(!IA.downloads&&window.claude&&window.claude.use){try{IA.downloads=await window.claude.use('downloads');}catch(_){}}
+  if(IA.downloads){try{await IA.downloads.save({filename:fname,data:blob});}catch(e){if(e&&e.code!=='declined')alert('No se pudo descargar el archivo.');}return;}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);
 }
@@ -737,32 +787,55 @@ $('tbNota').addEventListener('click',()=>setTab('nota'));
 $('tbListado').addEventListener('click',()=>setTab('listado'));
 
 /* ---------- inicio ---------- */
-async function cargar(file){
-  $('err').hidden=true;
+let pendientes=null;
+async function cargar(files){
+  files=[...files];if(!files.length)return;
+  $('err').hidden=true;$('apikey').hidden=true;
+  const esExcel=files.length===1&&(/\.xlsx$/i.test(files[0].name)||/spreadsheetml/.test(files[0].type));
+  if(!esExcel)return cargarParte(files);
   try{
-    const sheets=await readWorkbook(await file.arrayBuffer());
-    const d=extract(sheets);state.d=d;state.v={};
+    const sheets=await readWorkbook(await files[0].arrayBuffer());
+    iniciar(extract(sheets));
+  }catch(e){console.error(e);$('err').textContent='No pude leer el archivo: '+(e.message||e)+' Probá con el Excel original de Sergio (.xlsx).';$('err').hidden=false;}
+}
+function iniciar(d){
+  {
+    state.d=d;state.v={};state.iniEfeManual=false;
     for(const f of SERGIO){if(f.type==='dt'){state.v[f.id+'_f']=d[f.id+'_f']||'';state.v[f.id+'_h']=d[f.id+'_h']||'';}else state.v[f.id]=d[f.id]||'';}
     for(const f of [...MANUAL,...NOTA]){if(f.type==='dt'){state.v[f.id+'_f']='';state.v[f.id+'_h']='';continue;}
       state.v[f.id]=(f.remember?store.get(f.id,''):'')||f.def||'';}
     state.v.draft=d.draft||'';state.v.demorasSN=d.demorasSN||'';state.v.demoras=d.demoras||'';
+    if(d.pre)for(const [k,val] of Object.entries(d.pre))if(S(val))state.v[k]=val;
     const now=new Date();state.v.fechaNota=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;state.v.firma=store.get('firmaSel','');if(!firmas().some(x=>x.id===state.v.firma)&&state.v.firma!=='no')state.v.firma=FIRMAS_FIJAS[0].id;
-    const ef=tramo('atraco','finalizo');
-    if(ef&&ef.length===1)d.demList.forEach(x=>{const a=toMin(x.desde);let b=toMin(x.hasta);if(b<a)b+=1440;if(a<ef[0].desde||b>ef[0].hasta)x.on=false;});
+    autoIniEfe();
+    const ef=tramo('iniEfe','finalizo');
+    if(ef&&ef.length===1)d.demList.forEach(x=>{if(!x.fecha)x.fecha=ef[0].fecha;});
+    if(ef)d.demList.forEach(x=>{const r=ef.find(y=>y.fecha===x.fecha);if(x.fecha&&!r){x.on=false;return;}
+      if(r){const a=toMin(x.desde);let b=toMin(x.hasta);if(b<=a)b+=1440;if(a<r.desde||(b>r.hasta&&b<=1440))x.on=false;}});
     const exp1=S(d.exportador).split(/\s+/)[0];if(exp1)state.v.habilita='SI / '+exp1.toUpperCase();
-    renderFields(MANUAL,$('gManual'));renderFields(SERGIO,$('gSergio'));renderFields(NOTA,$('gNota'));state.v.tipoBuque=store.get('tipoBuque','')||'BULK CARRIER';state.v.cargador=store.get('cargador:'+S(d.exportador).toUpperCase(),'')||S(d.exportador).split(/\s+/)[0].toUpperCase();renderFields(LISTADO,$('gListado'));
+    const mano=d.fuente==='mano';
+    $('lManual').textContent=mano?'Estos datos no vienen en el parte. Algunos quedan guardados de la última vez.':'Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.';
+    $('hSergio').textContent=mano?'Datos leídos del parte':'Datos del Excel de Sergio';
+    $('lSergio').textContent=d.manual?'Copialos del parte.':mano?'Se leyeron de la letra a mano. Revisalos contra el papel y corregí lo que haga falta.':'Ya están cargados. Revisalos y corregí lo que haga falta.';
+    $('lDem').textContent=mano?'Las saqué del renglón Demoras del parte. Corregí lo que se haya leído mal y destildá las que no se descuentan.':'Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.';
+    $('secTurnos').hidden=!mano;state.nBod=Math.max(7,...d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
+    state.demRender=null;
+    renderFields(MANUAL,$('gManual'));renderFields(SERGIO,$('gSergio'));renderFields(NOTA,$('gNota'));
+    const fIni=document.querySelector('.field[data-id=iniEfe]');if(fIni)fIni.addEventListener('input',()=>{state.iniEfeManual=true;},true);state.v.tipoBuque=store.get('tipoBuque','')||'BULK CARRIER';state.v.cargador=store.get('cargador:'+S(d.exportador).toUpperCase(),'')||S(d.exportador).split(/\s+/)[0].toUpperCase();renderFields(LISTADO,$('gListado'));
     $('shipSub').innerHTML=[d.codigo&&'Nº '+d.codigo,d.unidad&&'Unidad '+d.unidad,d.destino&&'Destino '+d.destino].filter(Boolean).map(t=>'<span>'+t.replace(/</g,'&lt;')+'</span>').join('');
-    $('stCereal').textContent=d.cereal||'—';$('stTotal').textContent=fmtTons(d.total)+' t';$('stExp').textContent=d.exportador||'—';
+    $('stCereal').textContent=d.cereal||'—';$('stExp').textContent=d.exportador||'—';
     const ck=[];
     if(d.totalSergio)ck.push(Math.abs(d.totalSergio-d.total)<0.01?['ok',`El total cargado coincide con los totales por bodega de Sergio (${fmtTons(d.total)} t).`]:['warn',`Ojo: la suma por turno da ${fmtTons(d.total)} t y los totales por bodega de Sergio dan ${fmtTons(d.totalSergio)} t.`]);
     const nf=SERGIO.filter(f=>isEmpty(f)).map(f=>f.label);
-    if(nf.length)ck.push(['warn','No encontré en el Excel de Sergio: '+nf.join(', ')+'. Completalos en la planilla.']);
+    if(mano&&!d.manual)ck.push(['warn','Se leyó de la letra a mano: revisá cada dato contra el parte antes de descargar.']);
+    if(mano&&d.dudas&&d.dudas.length)ck.push(['warn','Lecturas dudosas: '+d.dudas.map(esc).join(' · ')]);
+    if(nf.length&&!d.manual)ck.push(['warn',(mano?'No encontré en el parte: ':'No encontré en el Excel de Sergio: ')+nf.join(', ')+'. Completalos en la planilla.']);
     $('checks').innerHTML=ck.map(([c,t])=>`<li class="${c}">${t}</li>`).join('');
     $('drop').hidden=true;$('main').hidden=false;$('bar').hidden=false;$('otro').hidden=false;
     setTab(state.tab);window.scrollTo(0,0);
-  }catch(e){console.error(e);$('err').textContent='No pude leer el archivo: '+(e.message||e)+' Probá con el Excel original de Sergio (.xlsx).';$('err').hidden=false;}
+  }
 }
-$('file').addEventListener('change',e=>{const f=e.target.files[0];if(f)cargar(f);e.target.value='';});
+$('file').addEventListener('change',e=>{const f=e.target.files;if(f&&f.length)cargar(f);e.target.value='';});
 $('otro').addEventListener('click',()=>$('file').click());
 $('dl').addEventListener('click',async()=>{if(!listo('planilla'))return;const [x]=await archivos('planilla');recordar('planilla');bajar(x);});
 $('dlNota').addEventListener('click',async()=>{if(!listo('nota'))return;const [x]=await archivos('nota');recordar('nota');bajar(x);});
@@ -792,18 +865,43 @@ function notaLineas(){
     ['Eslora',S(v.eslora)?dec2(v.eslora)+' Mts':''],['Manga',S(v.manga)?dec2(v.manga)+' Mts':''],
     ['Puntal',S(v.puntal)?dec2(v.puntal)+' Mts':''],['T.R.N.',S(v.trn)?milesTxt(v.trn):'']];
 }
+function demMins(x){if(!x.desde||!x.hasta)return 0;const a=toMin(x.desde);let b=toMin(x.hasta);if(b<=a)b+=1440;return b-a;}
+const hm=m=>m>=1440?'24:00':pad(Math.floor(m/60))+':'+pad(m%60);
+function unir(iv){iv=iv.slice().sort((a,b)=>a[0]-b[0]);const o=[];for(const [a,b] of iv){if(o.length&&a<=o[o.length-1][1])o[o.length-1][1]=Math.max(o[o.length-1][1],b);else o.push([a,b]);}return o;}
+function diasDem(efe,dem){
+  // cada demora en su día (si pasa la medianoche se parte); las superpuestas se cuentan una vez
+  const por={};
+  for(const x of dem){if(!x.fecha||!x.desde||!x.hasta)continue;const a=toMin(x.desde);let b=toMin(x.hasta);if(b<=a)b+=1440;
+    const txt=`De ${x.desde} a ${x.hasta} hs ${S(x.motivo)}`.trim();
+    (por[x.fecha]=por[x.fecha]||{items:[],iv:[]}).items.push({txt,a});
+    por[x.fecha].iv.push([a,Math.min(b,1440)]);
+    if(b>1440){const f2=serialParts(dateToSerial(x.fecha)+1).f;(por[f2]=por[f2]||{items:[],iv:[]}).iv.push([0,b-1440]);}}
+  const dias=(efe||[]).map(r=>{const p=por[r.fecha]||{items:[],iv:[]};const m=unir(p.iv);
+    return {fecha:r.fecha,items:p.items.sort((a,b)=>a.a-b.a).map(i=>({txt:i.txt})),merged:m.map(([a,b])=>({desde:hm(a),hasta:hm(b)})),mins:m.reduce((s,[a,b])=>s+b-a,0)};});
+  return dias;
+}
+function autoIniEfe(){
+  if(state.iniEfeManual)return;
+  const v=state.v;if(state.d.fuente!=='mano'||!(v.comenzo_f&&v.comenzo_h)){if(v.atraco_f&&v.atraco_h){v.iniEfe_f=v.atraco_f;v.iniEfe_h=v.atraco_h;}}
+  else{const c=dateToSerial(v.comenzo_f)*1440+toMin(v.comenzo_h);let t=Math.floor(c/360)*360;
+    if(v.atraco_f&&v.atraco_h){const a=dateToSerial(v.atraco_f)*1440+toMin(v.atraco_h);if(a>t)t=a;}
+    const p=serialParts(t/1440);v.iniEfe_f=p.f;v.iniEfe_h=p.h;}
+  const ins=document.querySelectorAll('.field[data-id=iniEfe] input');if(ins.length===2){ins[0].value=v.iniEfe_f||'';ins[1].value=v.iniEfe_h||'';}
+}
 function cuadro(){
-  const est=tramo('atraco','zarpo'),efe=tramo('atraco','finalizo');
+  const est=tramo('atraco','zarpo'),efe=tramo('iniEfe','finalizo');
   const dem=state.d.demList.filter(x=>x.on);
-  const tE=est?est.reduce((s,r)=>s+r.mins,0):0,tF=efe?efe.reduce((s,r)=>s+r.mins,0):0,tD=dem.reduce((s,x)=>s+x.mins,0);
-  return {est,efe,dem,tE,tF,tD,neta:tF-tD};
+  const dias=diasDem(efe,dem);
+  const tE=est?est.reduce((s,r)=>s+r.mins,0):0,tF=efe?efe.reduce((s,r)=>s+r.mins,0):0,tD=dias.reduce((s,x)=>s+x.mins,0);
+  return {est,efe,dem,dias,tE,tF,tD,neta:tF-tD};
 }
 function fechaLarga(f){if(!f)return '';const [y,m,d]=f.split('-');return `Rosario, ${d} de ${MESES[+m-1]} ${y}`;}
 function renderNota(){
   const v=state.v,falta=[],L=notaLineas();
   L.forEach(([k,val])=>{if(!val)falta.push(k);});
   if(!S(v.buque))falta.push('Buque');
-  const c=cuadro();if(!c.est)falta.push('Estadía (atracó y zarpó)');if(!c.efe)falta.push('Efectiva (atracó y finalizó)');
+  const c=cuadro();if(!c.est)falta.push('Estadía (atracó y zarpó)');if(!c.efe)falta.push('Efectiva (inicio de la efectiva y finalizó)');
+  if(c.dem.some(x=>!x.fecha||!x.desde||!x.hasta))falta.push('Fecha y horario de las demoras');
   $('notaPrev').innerHTML=`<div class="ref">Ref. N°${esc(S(v.nroNota)||'…')} : MV “${esc(S(v.buque).toUpperCase())}”</div>`+
     `<div style="color:var(--steel);margin-bottom:10px">${esc(fechaLarga(v.fechaNota))}</div><dl>`+
     L.map(([k,val])=>`<dt>${k}</dt><dd class="${val?'':'miss'}">${val?esc(val):'falta en la planilla'}</dd>`).join('')+'</dl>';
@@ -813,13 +911,21 @@ function renderNota(){
   $('tEstadia').innerHTML=tabla(c.est,c.tE,'Estadía del buque');
   $('tEfectiva').innerHTML=tabla(c.efe,c.tF,'Efectiva de embarque / operaciones');
   const ul=$('lDemoras');
-  if(!state.d.demList.length)ul.innerHTML='<li>No encontré demoras en el Excel de Sergio.</li>';
-  else if(ul.childElementCount!==state.d.demList.length){
+  if(state.demRender!==state.d.demList.length+':'+(state.demVer||0)){state.demRender=state.d.demList.length+':'+(state.demVer||0);
     ul.innerHTML='';
-    state.d.demList.forEach(x=>{const li=document.createElement('li');const cb=document.createElement('input');cb.type='checkbox';cb.checked=x.on;
-      cb.setAttribute('aria-label','Descontar '+x.txt);li.classList.toggle('off',!x.on);
-      cb.addEventListener('change',()=>{x.on=cb.checked;li.classList.toggle('off',!x.on);refresh();});
-      li.appendChild(cb);li.insertAdjacentHTML('beforeend',`<span class="t">${esc(x.txt)}</span><span class="d">${fHM(x.mins)}</span>`);ul.appendChild(li);});
+    if(!state.d.demList.length)ul.innerHTML='<li>'+(state.d.fuente==='mano'?'No hay demoras en el parte.':'No encontré demoras en el Excel de Sergio.')+'</li>';
+    state.d.demList.forEach((x,i)=>{const li=document.createElement('li');li.classList.toggle('off',!x.on);
+      const cb=document.createElement('input');cb.type='checkbox';cb.checked=x.on;cb.setAttribute('aria-label','Descontar esta demora');
+      cb.addEventListener('change',()=>{x.on=cb.checked;li.classList.toggle('off',!x.on);refresh();});li.appendChild(cb);
+      const ed=document.createElement('div');ed.className='ed';
+      ed.innerHTML=`<input type="date" data-k="fecha" aria-label="Fecha"><input type="time" data-k="desde" aria-label="Desde"><input type="time" data-k="hasta" aria-label="Hasta"><input class="mo" data-k="motivo" aria-label="Motivo"><span class="d"></span><button type="button" class="x" aria-label="Borrar demora">✕</button>`;
+      const dur=ed.querySelector('.d');
+      ed.querySelectorAll('input').forEach(inp=>{const k=inp.dataset.k;inp.value=k==='hasta'&&x.hasta==='24:00'?'00:00':(x[k]||'');
+        inp.addEventListener('input',()=>{x[k]=inp.value;dur.textContent=fHM(demMins(x));inp.classList.toggle('falta',!inp.value&&k!=='motivo');refresh();});
+        inp.classList.toggle('falta',!inp.value&&k!=='motivo');});
+      dur.textContent=fHM(demMins(x));
+      ed.querySelector('.x').addEventListener('click',()=>{state.d.demList.splice(i,1);state.demVer=(state.demVer||0)+1;refresh();});
+      li.appendChild(ed);ul.appendChild(li);});
   }
   $('sEfe').textContent=c.efe?fHM(c.tF):'—';$('sDem').textContent=fHM(c.tD);$('sNeta').textContent=c.efe?fHM(c.neta):'—';
   return falta;
@@ -877,70 +983,98 @@ function notaPdf(){
   return {blob:new Blob([bytes],{type:'application/pdf'}),fname:`Informe_Enapro_Nº_${S(v.nroNota)}__MV_${bq}.pdf`};
 }
 
-/* Excel del cuadro de estadía */
+/* Excel del cuadro de estadía: mismo diseño que la Hoja1 de los cuadros de demoras */
+const CUADRO_TPL_B64='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';
+// Arma la Hoja1 copiando el diseño de la plantilla (Hoja1 del SEAMELODY)
+async function buildXlsx(ExcelJS, templateBuf, D) {
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(templateBuf);
+  const ws = wb.getWorksheet('Hoja1');
+  const st = {}, hts = {};
+  for (let r = 1; r <= 35; r++) {
+    st[r] = [];
+    for (let c = 1; c <= 4; c++) st[r][c] = JSON.parse(JSON.stringify(ws.getCell(r, c).style || {}));
+    hts[r] = ws.getRow(r).height;
+  }
+  const maxR = Math.max(ws.rowCount, 90);
+  for (let r = 1; r <= maxR; r++) {
+    const row = ws.getRow(r); row.height = undefined;
+    for (let c = 1; c <= 20; c++) { const cell = row.getCell(c); cell.value = null; cell.style = {}; }
+  }
+  let n = 0;
+  const emit = (src, vals = {}, fmts = {}) => {
+    n++; const row = ws.getRow(n);
+    for (let c = 1; c <= 4; c++) row.getCell(c).style = JSON.parse(JSON.stringify(st[src][c]));
+    if (hts[src]) row.height = hts[src];
+    for (const [k, v] of Object.entries(vals)) ws.getCell(k + n).value = v;
+    for (const [k, f] of Object.entries(fmts)) ws.getCell(k + n).numFmt = f;
+    return n;
+  };
+  const toDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+  const frac = (hm) => { const [h, m] = hm.split(':').map(Number); return (h * 60 + m) / 1440; };
+  const TF = { B: 'h:mm', C: '[h]:mm:ss', D: '[h]:mm:ss' };
+
+  emit(1, { A: 'Puerto Rosario - U VI VII - KM 415 río Paraná', C: 'Ofi. Coordinación de embarques' });
+  emit(2, { B: `Estadía del buque N ${D.numero}:`, C: D.buque, D: D.unidad });
+  emit(3, { B: 'Código.', C: isNaN(+D.codigo) || D.codigo === '' ? D.codigo : +D.codigo });
+  emit(4, { A: 'Días', B: 'Estadía del buque', D: 'Tt hs.' });
+
+  const filas = (rows, first, mid, last) => {
+    const out = [];
+    rows.forEach((x, i) => {
+      const src = i === 0 ? first : (i === rows.length - 1 ? last : mid);
+      const r = emit(src, { A: toDate(x.fecha), B: x.desde, C: x.hasta }, TF);
+      ws.getCell('D' + r).value = { formula: `C${r}-B${r}`, result: x.hasta - x.desde };
+      out.push(r);
+    });
+    return out;
+  };
+  const sumRes = (rows) => rows.reduce((a, x) => a + (x.hasta - x.desde), 0);
+
+  const est = D.estadia, ef = D.efectiva;
+  const rEst = filas(est, 5, 10, 12);
+  let r = emit(13, { C: 'Total hs:' });
+  ws.getCell('D' + r).value = { formula: `SUM(D${rEst[0]}:D${rEst[rEst.length - 1]})`, result: sumRes(est) };
+  ws.getCell('D' + r).numFmt = '[h]:mm:ss';
+
+  emit(14, { A: 'Días', B: 'Efectiva de EMB./ Operaciones', D: 'Tt hs.' });
+  const rEf = filas(ef, 15, 16, 16);
+  const rTotEf = emit(22, { C: 'Total:' });
+  const efTot = sumRes(ef);
+  ws.getCell('D' + rTotEf).value = { formula: `SUM(D${rEf[0]}:D${rEf[rEf.length - 1]})`, result: efTot };
+  const rDesc = emit(23, { A: 'DEMORAS SIN OPERATIVIDAD TOTAL:', C: 'Descuentos x demoras' });
+
+  const T = (hm) => hm === '24:00' ? '1' : `TIME(${+hm.split(':')[0]},${+hm.split(':')[1]},0)`;
+  const subs = []; let demTot = 0; let rNet;
+  D.dias.forEach((dia, i) => {
+    if (i === 0) rNet = emit(24, { A: toDate(dia.fecha) }); else emit(29, { A: toDate(dia.fecha) });
+    if (!dia.items.length) emit(30, { A: 'SIN DEMORAS' });
+    dia.items.forEach(it => emit(30, { A: it.txt || `De ${it.desde} a ${it.hasta} hs ${it.motivo}`.trim() }));
+    const merged = dia.merged; // intervalos ya unidos [{desde,hasta}]
+    const res = merged.reduce((a, x) => a + frac(x.hasta) - frac(x.desde), 0);
+    const f = merged.length ? merged.map(x => `(${T(x.hasta)}-${T(x.desde)})`).join('+') : '0';
+    const rs = emit(35);
+    ws.getCell('D' + rs).value = { formula: f, result: res };
+    ws.getCell('D' + rs).numFmt = '[h]:mm';
+    subs.push('D' + rs); demTot += res;
+  });
+  ws.getCell('D' + rDesc).value = { formula: subs.join('+') || '0', result: demTot };
+  if (rNet) ws.getCell('D' + rNet).value = { formula: `D${rTotEf}-D${rDesc}`, result: efTot - demTot };
+  ws.pageSetup.printArea = `A1:D${n}`;
+  return await wb.xlsx.writeBuffer();
+}
+
+
 async function cuadroXlsx(){
-  const v=state.v,c=cuadro(),rows=[],merges=[];let r=0;
-  const xe=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const cell=(ref,s,val,f)=>{
-    if(f!=null)return `<c r="${ref}" s="${s}"><f>${xe(f)}</f><v>${val}</v></c>`;
-    if(val==null||val==='')return `<c r="${ref}" s="${s}"/>`;
-    if(typeof val==='number')return `<c r="${ref}" s="${s}"><v>${val}</v></c>`;
-    return `<c r="${ref}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${xe(val)}</t></is></c>`;
-  };
-  const row=(cells,ht)=>{r++;rows.push(`<row r="${r}"${ht?` ht="${ht}" customHeight="1"`:''}>${cells.map(([col,s,val,f])=>cell(col+r,s,val,f)).join('')}</row>`);return r;};
-  const D=m=>m/1440;
-  row([['A',2,'Puerto Rosario - U VI VII - KM 415 río Paraná']]);row([['A',0,'Ofi. Coordinación de embarques']]);r++;
-  row([['A',1,'Buque'],['B',1,'MV '+S(v.buque).toUpperCase()],['D',1,'U '+S(v.unidad)]]);merges.push(`B${r}:C${r}`);
-  row([['A',1,'Código'],['B',10,num(v.codigo)],['C',7,'Buque Nº'],['D',10,S(v.nro)||state.d.nroSergio]]);
-  r++;
-  const seccion=(tit,list,totLabel)=>{
-    row([['A',9,tit],['B',9,''],['C',9,''],['D',9,'']]);merges.push(`A${r}:D${r}`);
-    row([['A',3,'Día'],['B',3,'Desde'],['C',3,'Hasta'],['D',3,'Tt hs.']]);
-    const a=r+1;list.forEach(x=>row([['A',4,dateToSerial(x.fecha)],['B',5,D(x.desde)],['C',5,D(x.hasta)],['D',5,D(x.mins),`C${r+1}-B${r+1}`]]));
-    const tot=list.reduce((s,x)=>s+x.mins,0);
-    row([['A',7,totLabel],['D',8,D(tot),list.length?`SUM(D${a}:D${r})`:'0']]);merges.push(`A${r}:C${r}`);return r;
-  };
-  seccion('Estadía del buque',c.est||[],'Total hs:');r++;
-  const rEfe=seccion('Efectiva de embarque / operaciones',c.efe||[],'Total:');r++;
-  row([['A',9,'Demoras sin operatividad'],['B',9,''],['C',9,''],['D',9,'']]);merges.push(`A${r}:D${r}`);
-  row([['A',3,'Detalle'],['B',3,'Desde'],['C',3,'Hasta'],['D',3,'Tt hs.']]);
-  const a=r+1;c.dem.forEach(x=>row([['A',6,x.txt],['B',5,D(toMin(x.desde))],['C',5,D(toMin(x.hasta))],['D',5,D(x.mins),`MOD(C${r+1}-B${r+1},1)`]],x.txt.length>60?30:null));
-  const rDem=row([['A',7,'Descuentos x demoras:'],['D',8,D(c.tD),c.dem.length?`SUM(D${a}:D${r})`:'0']]);merges.push(`A${r}:C${r}`);
-  row([['A',7,'Efectiva neta:'],['D',8,D(c.neta),`D${rEfe}-D${rDem}`]]);merges.push(`A${r}:C${r}`);
-  const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<worksheet xmlns="${NS}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><dimension ref="A1:D${r}"/><sheetViews><sheetView workbookViewId="0"/></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols><col min="1" max="1" width="50" customWidth="1"/><col min="2" max="4" width="11" customWidth="1"/></cols><sheetData>${rows.join('')}</sheetData><mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="portrait"/></worksheet>`;
-  const bd='<border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom><diagonal/></border>';
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<styleSheet xmlns="${NS}"><numFmts count="2"><numFmt numFmtId="164" formatCode="dd/mm/yy"/><numFmt numFmtId="165" formatCode="[h]:mm"/></numFmts>
-<fonts count="3"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="10"/><name val="Arial"/></font><font><b/><sz val="12"/><name val="Arial"/></font></fonts>
-<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFD9E2EC"/><bgColor indexed="64"/></patternFill></fill></fills>
-<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>${bd}</borders>
-<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-<cellXfs count="11">
-<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>
-<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>
-<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>
-<xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>
-<xf numFmtId="165" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>
-<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>
-<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="right"/></xf>
-<xf numFmtId="165" fontId="1" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf>
-<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
-<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="left"/></xf>
-</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
-  const z=new JSZip();
-  z.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`);
-  z.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`);
-  z.file('xl/workbook.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<workbook xmlns="${NS}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Estadía" sheetId="1" r:id="rId1"/></sheets></workbook>`);
-  z.file('xl/_rels/workbook.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`);
-  z.file('xl/styles.xml',styles);z.file('xl/worksheets/sheet1.xml',sheet);
-  const blob=await z.generateAsync({type:'blob',compression:'DEFLATE',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  return {blob,fname:`Cuadro estadía - ${S(v.buque).toUpperCase().replace(/[\\/:*?"<>|]/g,'-')}.xlsx`};
+  const v=state.v,c=cuadro();
+  const n=S(v.nro).split('/')[0].trim()||S(state.d.nroSergio);
+  const rows=l=>(l||[]).map(r=>({fecha:r.fecha,desde:r.desde/1440,hasta:r.hasta/1440}));
+  const D={numero:n,buque:S(v.buque).toUpperCase().replace(/^(MV|M\/V)\s+/,''),codigo:S(v.codigo),unidad:'U '+S(v.unidad).replace(/^u\.?\s*/i,'').toUpperCase(),
+    estadia:rows(c.est),efectiva:rows(c.efe),dias:c.dias};
+  const tpl=Uint8Array.from(atob(CUADRO_TPL_B64),ch=>ch.charCodeAt(0)).buffer;
+  const buf=await buildXlsx(ExcelJS,tpl,D);
+  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  return {blob,fname:`Cuadro estadía - ${n?n+' - ':''}${D.buque}.xlsx`.replace(/[\\/:*?"<>|]/g,'-')};
 }
 
 /* ---------- firmas (guardadas en este teléfono) ---------- */
@@ -1257,5 +1391,152 @@ function renderListado(){
     }));
   });
 }
+
+/* ---------- parte escrito a mano ---------- */
+const IA={sample:null,downloads:null};
+if(window.claude&&window.claude.use){window.claude.use('sample').then(s=>{IA.sample=s;}).catch(()=>{});window.claude.use('downloads').then(d=>{IA.downloads=d;}).catch(()=>{});}
+const PROMPT_PARTE=`Las imágenes son de una terminal portuaria de granos de Rosario, Argentina. Una es el "parte" del buque, escrito a mano sobre un formulario impreso. Puede haber otra hoja con la carga por turno y por bodega. Pueden estar giradas: leelas en la orientación que corresponda.
+
+Respondé SOLO con un objeto JSON, sin texto alrededor ni bloques de código, con estas claves (null si el dato no está):
+{
+ "nro": "casillero N° tal cual, ej. '69/26'",
+ "buque": "nombre en mayúsculas, sin MV",
+ "codigo": "casillero Codigo", "imo": "casillero IMO", "unidad": "casillero Unidad en romanos, ej. 'VII'",
+ "bandera": "", "ultimo_puerto": "", "agencia": "Agencia Marítima", "cargador": "", "destino": "", "grano": "",
+ "estibaje": "", "control": "", "coordinacion": "",
+ "porte_bruto": "solo números", "porte_neto": "solo números", "eslora": "con coma decimal, ej. '229,00'", "manga": "", "puntal": "",
+ "llego_rada": {"fecha":"dd/mm","hora":"hh:mm"}, "atraco": {"fecha":"dd/mm","hora":"hh:mm"},
+ "habilitacion_bodegas": {"fecha":"dd/mm","hora":"hh:mm"}, "comenzo_carga": {"fecha":"dd/mm","hora":"hh:mm"},
+ "finalizo_carga": {"fecha":"dd/mm","hora":"hh:mm"}, "zarpo": {"fecha":"dd/mm","hora":"hh:mm"},
+ "resultado_draft": "", "calado_inicial": "tal cual, ej. '4,80 x 7,40'", "calado_final": "",
+ "demoras": [{"fecha":"dd/mm","desde":"hh:mm","hasta":"hh:mm","motivo":""}],
+ "carga": [{"fecha":"dd/mm","turno":"ej. '06 a 12'","bodegas":{"1":1234.5},"manos":null,"exportador":null}],
+ "dudas": ["cada lectura dudosa, en una frase corta"]
+}
+
+Demoras (renglón "Demoras"): es texto corrido con tramos separados por "+". La fecha aparece solo cuando cambia el día; los tramos sin fecha son del último día nombrado. Horas en 24 hs con dos dígitos: "de 06 a 06:30" es de 06:00 a 06:30 y "a 18" es 18:00. Si un tramo pasa la medianoche, partilo en dos. El motivo va en minúscula, completo y sin abreviaturas ("espera de carga", "no operó por lluvia", "inspección previa control", "armado de trabajo y espera de carga"). Incluí todos los tramos.
+Carga: solo si hay una tabla de toneladas por turno y bodega; si no, devolvé []. Toneladas como número con punto decimal.
+Anotá en "dudas" cualquier número o palabra que no se lea con seguridad.`;
+
+function fechaParte(s){
+  const m=/^(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?$/.exec(S(s));if(!m)return '';
+  const d=+m[1],mo=+m[2];let y=m[3]?+m[3]:new Date().getFullYear();if(y<100)y+=2000;
+  if(!m[3]&&Date.UTC(y,mo-1,d)-Date.now()>60*864e5)y--;
+  return `${y}-${pad(mo)}-${pad(d)}`;
+}
+const horaParte=s=>{const m=/(\d{1,2})(?:[:.,h](\d{2}))?/.exec(S(s));return m&&+m[1]<=24?pad(+m[1])+':'+(m[2]||'00'):'';};
+function deParte(r){
+  const fh=o=>({f:fechaParte(o&&o.fecha),h:horaParte(o&&o.hora)});
+  const d={fuente:'mano',hoja:'parte'};
+  d.buque=S(r.buque).toUpperCase().replace(/^(MV|M\/V)\s+/,'');d.codigo=S(r.codigo);d.imo=S(r.imo).replace(/\D/g,'');
+  d.unidad=S(r.unidad).toUpperCase().replace(/^U\.?\s*/,'');d.matricula=S(r.bandera);d.agencia=S(r.agencia);d.destino=S(r.destino);
+  d.cereal=S(r.grano);d.control=S(r.control);d.coordinador=S(r.coordinacion);d.exportador=S(r.cargador);
+  d.eslora=S(r.eslora);d.manga=S(r.manga);d.puntal=S(r.puntal);d.trn=S(r.porte_neto).replace(/\D/g,'');
+  d.caladoIni=S(r.calado_inicial);d.caladoFin=S(r.calado_final);d.draft=S(r.resultado_draft)?'SI':'';
+  for(const [k,src] of [['atraco',r.atraco],['comenzo',r.comenzo_carga],['finalizo',r.finalizo_carga],['zarpo',r.zarpo],['habilitado',r.habilitacion_bodegas]]){const x=fh(src);d[k+'_f']=x.f;d[k+'_h']=x.h;}
+  const nro=S(r.nro);d.nroSergio=(/\d+/.exec(nro)||[''])[0];
+  const rada=fh(r.llego_rada);
+  d.pre={nro,rada_f:rada.f,rada_h:rada.h,estibaje:S(r.estibaje),trb:S(r.porte_bruto).replace(/\D/g,''),proc:S(r.ultimo_puerto)};
+  d.demList=(r.demoras||[]).map(x=>({fecha:fechaParte(x.fecha),desde:horaParte(x.desde),hasta:horaParte(x.hasta),motivo:S(x.motivo),on:true}))
+    .map(x=>({...x,hasta:x.hasta==='00:00'&&x.desde!=='00:00'?'24:00':x.hasta}));
+  const lect=d.demList.filter(x=>/lectura|c[aá]lculo/i.test(x.motivo));const mins=lect.reduce((s,x)=>s+demMins(x),0);
+  d.demorasUsadas=lect.map(x=>`${x.desde} a ${x.hasta}`);
+  if(mins>0){const hh=Math.floor(mins/60),mm=mins%60;d.demoras=(hh?`${hh} hs${pad(mm)}'`:`${mm}'`)+' LECTURA Y CALCULOS';d.demorasSN='SI';}else{d.demoras='';d.demorasSN='';}
+  d.turnos=(r.carga||[]).map(t=>{const tons=Object.entries(t.bodegas||{}).map(([b,x])=>({bodega:+String(b).replace(/\D/g,''),tons:+x})).filter(x=>x.bodega&&x.tons).sort((a,b)=>a.bodega-b.bodega);
+    return {fecha:fechaParte(t.fecha),turno:normTurno(S(t.turno)),tons,total:tons.reduce((s,x)=>s+x.tons,0),manos:typeof t.manos==='number'?t.manos:null,exp:S(t.exportador)};}).filter(t=>t.fecha||t.tons.length);
+  d.total=d.turnos.reduce((s,t)=>s+t.total,0);d.totalSergio=null;
+  const exps=[...new Set(d.turnos.map(t=>t.exp).filter(Boolean))];d.multiExp=exps.length>1;d.expTabla=exps[0]||d.exportador;
+  if(!d.comenzo_f&&d.turnos[0])d.comenzo_f=d.turnos[0].fecha;
+  d.dudas=(r.dudas||[]).map(S).filter(Boolean);
+  return d;
+}
+async function aImagenes(files){
+  const out=[],MAX=6,LADO=2000;
+  const jpeg=async(src,w,h)=>{const k=Math.min(1,LADO/Math.max(w,h)),c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);
+    const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(src,0,0,c.width,c.height);
+    return await new Promise(ok=>c.toBlob(ok,'image/jpeg',0.85));};
+  for(const f of files){
+    if(out.length>=MAX)break;
+    if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+      const lib=window['pdfjs-dist/build/pdf'];if(!lib)throw new Error('No se pudo cargar el lector de PDF. Revisá la conexión.');
+      lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdf=await lib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+      for(let p=1;p<=pdf.numPages&&out.length<MAX;p++){const pg=await pdf.getPage(p),v0=pg.getViewport({scale:1}),vp=pg.getViewport({scale:LADO/Math.max(v0.width,v0.height)});
+        const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;out.push(await jpeg(c,c.width,c.height));}
+    }else if(/^image\//.test(f.type)||/\.(jpe?g|png|webp|heic)$/i.test(f.name)){
+      let im;try{im=await createImageBitmap(f);}catch(e){im=await cargarImagen(f);}
+      out.push(await jpeg(im,im.width||im.naturalWidth,im.height||im.naturalHeight));
+    }else throw new Error('El archivo '+f.name+' no es un Excel, un PDF ni una foto.');
+  }
+  return out;
+}
+const blobB64=b=>new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=ko;r.readAsDataURL(b);});
+function jsonDe(t){t=S(t).replace(/```json|```/g,'');const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw new Error('respuesta sin datos');return JSON.parse(t.slice(a,b+1));}
+async function leerParte(imgs){
+  if(!IA.sample&&window.claude&&window.claude.use){try{IA.sample=await window.claude.use('sample');}catch(_){}}
+  if(IA.sample)return await IA.sample.json(PROMPT_PARTE,{images:imgs,modelTier:'complex'});
+  const key=store.get('apikey','');if(!key){const e=new Error('sin clave');e.code='nokey';throw e;}
+  const content=[];for(const b of imgs)content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:await blobB64(b)}});
+  content.push({type:'text',text:PROMPT_PARTE});
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:8000,messages:[{role:'user',content}]})});
+  if(r.status===401||r.status===403){const e=new Error('clave');e.code='badkey';throw e;}
+  if(!r.ok){let m='';try{m=(await r.json()).error.message;}catch(_){}throw new Error('El servicio respondió con un error ('+r.status+(m?': '+m:'')+').');}
+  const j=await r.json();return jsonDe((j.content||[]).filter(c=>c.type==='text').map(c=>c.text).join(''));
+}
+async function cargarParte(files){
+  pendientes=files;$('apikey').hidden=true;$('err').hidden=true;
+  $('leyendo').textContent='Leyendo el parte. Puede tardar un minuto…';$('leyendo').hidden=false;$('drop').hidden=true;
+  try{
+    const imgs=await aImagenes(files);if(!imgs.length)throw new Error('No encontré páginas para leer.');
+    const r=await leerParte(imgs);
+    $('leyendo').hidden=true;pendientes=null;iniciar(deParte(r));
+  }catch(e){
+    console.error(e);$('leyendo').hidden=true;$('drop').hidden=!$('main').hidden;
+    if(e.code==='nokey'||e.code==='badkey'){
+      $('apikeyMsg').textContent=e.code==='badkey'?'La clave guardada no funcionó. Pegá una clave válida de la API de Anthropic (empieza con sk-ant-).':'Para leer la letra a mano, la app le manda la imagen a Claude. Pegá acá tu clave de la API de Anthropic (empieza con sk-ant-). Queda guardada solo en este navegador.';
+      $('apikey').hidden=false;$('apikeyIn').focus();return;}
+    if(e.code==='not_granted'){$('err').textContent='No se dio permiso para leer el parte con Claude.';$('err').hidden=false;return;}
+    $('err').textContent='No pude leer el parte: '+(e.message||e)+' Probá con una foto más nítida y derecha.';$('err').hidden=false;
+  }
+}
+$('sinLeer').addEventListener('click',()=>{$('err').hidden=true;$('apikey').hidden=true;const d=deParte({});d.manual=true;iniciar(d);});
+$('apikeyOk').addEventListener('click',()=>{const k=S($('apikeyIn').value);if(!/^sk-ant-/.test(k)){$('apikeyMsg').textContent='La clave tiene que empezar con sk-ant-.';return;}
+  store.set('apikey',k);$('apikeyIn').value='';if(pendientes)cargarParte(pendientes);else $('apikey').hidden=true;});
+$('apikeyIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('apikeyOk').click();});
+$('addDem').addEventListener('click',()=>{const dl=state.d.demList,last=dl[dl.length-1];
+  dl.push({fecha:last?last.fecha:(state.v.iniEfe_f||''),desde:'',hasta:'',motivo:'',on:true});state.demVer=(state.demVer||0)+1;refresh();
+  setTimeout(()=>{const l=$('lDemoras').lastElementChild;const i=l&&l.querySelector('input[data-k=desde]');if(i)i.focus();},0);});
+
+/* ---------- toneladas por turno (modo parte) ---------- */
+function numTons(s){s=S(s).replace(/\s/g,'');if(!s)return 0;
+  if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');else if(s.includes(','))s=s.replace(',','.');
+  else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');const n=parseFloat(s);return isNaN(n)?0:n;}
+function recalcTurnos(){const d=state.d;d.turnos.forEach(t=>{t.tons=t.tons.filter(x=>x.tons).sort((a,b)=>a.bodega-b.bodega);t.total=t.tons.reduce((s,x)=>s+x.tons,0);});
+  d.total=d.turnos.reduce((s,t)=>s+t.total,0);const exps=[...new Set(d.turnos.map(t=>t.exp).filter(Boolean))];d.multiExp=exps.length>1;}
+function renderTurnosEdit(){
+  const d=state.d;if(!d||d.fuente!=='mano')return;const B=state.nBod||7,tb=$('tEdit');
+  let hh='<tr><th>Fecha</th><th>Turno</th>';for(let b=1;b<=B;b++)hh+=`<th class="n">Bod. ${b}</th>`;hh+='<th class="n">Manos</th><th></th></tr>';
+  tb.innerHTML=hh;
+  d.turnos.forEach((t,i)=>{const tr=document.createElement('tr');
+    let c=`<td class="f"><input type="date" data-k="fecha" aria-label="Fecha"></td><td class="tu"><input data-k="turno" placeholder="06 a 12" aria-label="Turno"></td>`;
+    for(let b=1;b<=B;b++)c+=`<td class="b"><input inputmode="decimal" data-b="${b}" aria-label="Bodega ${b}"></td>`;
+    c+=`<td class="m"><input inputmode="numeric" data-k="manos" aria-label="Manos"></td><td><button type="button" class="x" aria-label="Borrar turno">✕</button></td>`;
+    tr.innerHTML=c;
+    tr.querySelector('[data-k=fecha]').value=t.fecha||'';tr.querySelector('[data-k=turno]').value=t.turno||'';tr.querySelector('[data-k=manos]').value=t.manos??'';
+    tr.querySelectorAll('[data-b]').forEach(inp=>{const x=t.tons.find(y=>y.bodega===+inp.dataset.b);inp.value=x?String(x.tons).replace('.',','):'';
+      inp.addEventListener('input',()=>{const bn=+inp.dataset.b,v=numTons(inp.value);t.tons=t.tons.filter(y=>y.bodega!==bn);if(v)t.tons.push({bodega:bn,tons:v});recalcTurnos();refresh();});});
+    tr.querySelector('[data-k=fecha]').addEventListener('input',e=>{t.fecha=e.target.value;refresh();});
+    tr.querySelector('[data-k=turno]').addEventListener('change',e=>{t.turno=normTurno(e.target.value);e.target.value=t.turno;refresh();});
+    tr.querySelector('[data-k=manos]').addEventListener('input',e=>{const v=parseInt(e.target.value);t.manos=isNaN(v)?null:v;refresh();});
+    tr.querySelector('.x').addEventListener('click',()=>{d.turnos.splice(i,1);recalcTurnos();renderTurnosEdit();refresh();});
+    tb.appendChild(tr);});
+}
+$('addTurno').addEventListener('click',()=>{const d=state.d,last=d.turnos[d.turnos.length-1];
+  let fecha=last?last.fecha:(state.v.comenzo_f||''),turno='';
+  if(last){const m=/^(\d{1,2}) a (\d{1,2})$/.exec(last.turno);if(m){const a=+m[2]%24,b=a+6;turno=`${pad(a)} a ${pad(b)}`;if(+m[2]>=24&&fecha)fecha=serialParts(dateToSerial(fecha)+1).f;}}
+  d.turnos.push({fecha,turno,tons:[],total:0,manos:last?last.manos:null,exp:''});renderTurnosEdit();refresh();
+  const r=$('tEdit').lastElementChild;const i=r&&r.querySelector('[data-b]');if(i)i.focus();});
+$('nBod').addEventListener('change',e=>{const n=parseInt(e.target.value);if(n>=1&&n<=12){state.nBod=n;renderTurnosEdit();}else e.target.value=state.nBod;});
 </script>
 </body></html>
