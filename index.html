@@ -258,6 +258,53 @@ details.hist summary small{font:400 14px Barlow,sans-serif;color:var(--steel);ma
 .cqbody{padding:16px;text-align:center}
 .cqbody img{max-width:100%;height:auto;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.15)}
 .tcard .tb .cq{background:var(--harbor)}
+.pasosnav{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;margin:16px -4px 0;padding:8px 4px;background:var(--paper);scrollbar-width:none}
+.pasosnav::-webkit-scrollbar{display:none}
+.pasosnav a{flex:none;display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink);font-weight:600;font-size:15px;background:var(--card);border:1px solid var(--rule);border-radius:20px;padding:6px 12px 6px 6px}
+.pasosnav a:hover{border-color:var(--harbor-2)}
+.pasosnav i{width:9px;height:9px;border-radius:50%;background:var(--rule)}
+.pasosnav i.medio{background:var(--amber)}.pasosnav i.listo{background:var(--ok)}
+.pn{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--harbor);color:#fff;font:700 15px/1 "Barlow Condensed",sans-serif;flex:none}
+.paso{margin-top:28px;scroll-margin-top:70px}
+.paso>header,.admin>summary{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.paso h2{margin:0;font:700 24px/1.1 "Barlow Condensed",sans-serif}
+.paso .lead{margin:0 0 12px 36px;color:var(--steel);font-size:15px}
+.prog{margin-left:auto;font-size:14px;font-weight:600;color:#7A4E00;background:var(--amber-bg);border-radius:12px;padding:2px 10px;white-space:nowrap}
+.prog:empty{display:none}
+.prog.listo{color:var(--ok);background:var(--ok-bg)}
+details.mas{margin-top:12px;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:10px 14px}
+details.mas>summary{cursor:pointer;font-weight:600;color:var(--harbor-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap;list-style:none}
+details.mas>summary::-webkit-details-marker,.admin>summary::-webkit-details-marker{display:none}
+details.mas>summary::before,.admin>summary::after{content:"▸";transition:transform .15s}
+details.mas[open]>summary::before{transform:rotate(90deg)}
+details.mas>summary small{font-weight:400;color:var(--steel)}
+details.mas[open]>.grid{margin-top:12px}
+.admin{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 14px}
+.admin>summary{cursor:pointer;list-style:none;margin:0}
+.admin>summary::after{order:9;color:var(--steel)}
+.admin[open]>summary::after{transform:rotate(90deg)}
+.admin[open]>summary{margin-bottom:8px}
+.admin .lead{margin-left:36px}
+.grid.g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:760px){.grid.g4{grid-template-columns:1fr 1fr}}
+.timeline{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:4px 14px;position:relative}
+.timeline .field{flex-direction:row;align-items:center;flex-wrap:wrap;gap:6px 14px;border:0;border-bottom:1px solid var(--rule);border-radius:0;background:transparent;padding:12px 0 12px 32px;position:relative}
+.timeline .field:last-child{border-bottom:0}
+.timeline .field::before{content:"";position:absolute;left:4px;top:50%;width:14px;height:14px;border-radius:50%;border:2px solid var(--rule);background:var(--card);transform:translateY(-50%)}
+.timeline .field::after{content:"";position:absolute;left:11px;top:calc(50% + 9px);bottom:calc(-50% + 9px);width:2px;background:var(--rule)}
+.timeline .field:last-child::after{display:none}
+.timeline .field.ok::before{background:var(--ok);border-color:var(--ok)}
+.timeline .field.prox::before{border-color:var(--harbor-2);box-shadow:0 0 0 4px rgba(44,106,160,.18)}
+.timeline .field.prox>span{color:var(--harbor-2)}
+.timeline .field>span{width:120px;flex:none;font-weight:600;color:var(--ink);font-size:15px}
+.timeline .field .pair{flex:1 1 280px}
+.timeline .field small{display:none}
+.timeline .field.missing{background:transparent;border-color:var(--rule)}
+.timeline .field.missing>span::after{content:""}
+@media (max-width:560px){.timeline .field>span{width:100%}}
+#pBuque .field.missing{background:var(--card);border-style:dashed;border-color:#D9B36A}
+#pBuque .field.missing>span::after{content:" · falta";color:#B07A10;font-weight:500}
+#gPlano .field.opt>span::after{content:""}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--harbor-2);outline-offset:2px}
 </style>
@@ -332,31 +379,42 @@ details.hist summary small{font:400 14px Barlow,sans-serif;color:var(--steel);ma
     <ul class="checks" id="checks"></ul>
 
     <div id="tabPlanilla">
-    <section class="block">
-      <h2 id="hSergio">Datos del Excel de Sergio</h2>
-      <p class="lead" id="lSergio">Ya están cargados. Revisalos y corregí lo que haga falta.</p>
-      <div class="grid" id="gSergio"></div>
+    <nav class="pasosnav" id="pasosNav" aria-label="Secciones">
+      <a href="#pBuque"><span class="pn">1</span>Buque<i data-p="pBuque"></i></a>
+      <a href="#pHor"><span class="pn">2</span>Horarios<i data-p="pHor"></i></a>
+      <a href="#secTurnos"><span class="pn">3</span>Turnos<i data-p="secTurnos"></i></a>
+      <a href="#pDem"><span class="pn">4</span>Demoras<i data-p="pDem"></i></a>
+      <a href="#pAdm"><span class="pn">5</span>Administrativo<i data-p="pAdm"></i></a>
+    </nav>
+
+    <section class="paso" id="pBuque">
+      <header><span class="pn">1</span><h2 id="hSergio">Buque</h2><span class="prog" id="prog-pBuque"></span></header>
+      <p class="lead" id="lSergio">Se carga una vez, cuando atraca.</p>
+      <div class="grid" id="gBuque"></div>
+      <details class="mas"><summary>Datos técnicos <small>IMO, eslora, manga, puntal, T.R.N., calados</small><span class="prog" id="prog-tec"></span></summary>
+        <div class="grid" id="gTec"></div></details>
     </section>
 
-    <section class="block" id="secTurnos" hidden>
-      <h2>Toneladas por turno</h2>
-      <p class="lead">Un cuadro por turno, el último arriba. Al terminar el turno, tocá «Cuadro del turno» para compartirlo en lugar del papel.</p>
-      <div class="tools" style="margin:0 0 12px"><button class="btn" id="addTurno">Agregar turno</button><label>Bodegas <input id="nBod" inputmode="numeric" value="7"></label></div>
+    <section class="paso" id="pHor">
+      <header><span class="pn">2</span><h2>Horarios</h2><span class="prog" id="prog-pHor"></span></header>
+      <p class="lead">En orden, a medida que pasan. «Ahora» pone la fecha y hora del momento.</p>
+      <div class="timeline" id="gHor"></div>
+    </section>
+
+    <section class="paso" id="secTurnos">
+      <header><span class="pn">3</span><h2>Carga por turno</h2><span class="prog" id="prog-secTurnos"></span></header>
+      <p class="lead">Primero el plano (una vez). Después, un cuadro por turno, el último arriba.</p>
+      <div class="grid g4" id="gPlano"></div>
+      <div class="tools" style="margin:14px 0 12px"><button class="btn" id="addTurno">Agregar turno</button><label>Bodegas <input id="nBod" inputmode="numeric" value="7"></label></div>
       <div class="tcards" id="tEdit"></div>
-      <h3 class="sub3">Plano y fin estimado</h3>
-      <p class="lead">Salen en el cuadro de cada turno.</p>
-      <div class="grid" id="gPlano"></div>
+      <details class="mas"><summary>Ver cómo queda en la planilla</summary>
+        <div class="tablewrap" style="margin-top:10px"><table id="tCarga"></table></div>
+        <div class="tablewrap" style="margin-top:12px"><table id="tManos"></table></div></details>
     </section>
 
-    <section class="block">
-      <h2>Carga por turno</h2>
-      <p class="lead">Así va a quedar la tabla de la planilla.</p>
-      <div class="tablewrap"><table id="tCarga"></table></div>
-      <div class="tablewrap" style="margin-top:12px"><table id="tManos"></table></div>
-    </section>
-    <section class="block">
-      <h2>Demoras sin operatividad</h2>
-      <p class="lead" id="lDem">Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.</p>
+    <section class="paso" id="pDem">
+      <header><span class="pn">4</span><h2>Demoras sin operatividad</h2><span class="prog" id="prog-pDem"></span></header>
+      <p class="lead" id="lDem">Cargá cada corte en que paró todo el buque, con su fecha.</p>
       <div class="demaviso" id="demAviso" hidden></div>
       <div class="tablewrap"><ul class="dem" id="lDemoras"></ul></div>
       <div class="tools"><button class="btn alt" id="addDem">Agregar demora</button></div>
@@ -366,10 +424,11 @@ details.hist summary small{font:400 14px Barlow,sans-serif;color:var(--steel);ma
         <div><small>Efectiva neta</small><b id="sNeta"></b></div>
       </div>
     </section>
-    <section class="block">
-      <h2>Datos administrativos</h2>
-      <p class="lead" id="lManual">Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.</p>
-      <div class="grid" id="gManual"></div>
+
+    <section class="paso" id="pAdm">
+      <details class="admin" id="admDet"><summary><span class="pn">5</span><h2>Administrativo</h2><span class="prog" id="prog-pAdm"></span></summary>
+        <p class="lead" id="lManual">Lo completa administración para la planilla.</p>
+        <div class="grid" id="gManual"></div></details>
     </section>
 
     </div>
@@ -678,6 +737,14 @@ const SERGIO=[
   {id:'puntal',label:'Puntal',mode:'decimal'},{id:'trn',label:'T.R.N.',mode:'numeric'},
   {id:'caladoIni',label:'Calado inicial'},{id:'caladoFin',label:'Calado de salida'},
 ];
+const G_BUQUE=['buque','unidad','exportador','cereal','destino','agencia','codigo','matricula','control','coordinador'];
+const G_TEC=['imo','eslora','manga','puntal','trn','caladoIni','caladoFin','expTabla'];
+const G_HOR=['rada','atraco','habilitado','comenzo','finalizo','zarpo'];
+const porIds=ids=>ids.map(id=>ALL_SRC().find(f=>f.id===id)).filter(Boolean);
+function renderGrupos(){
+  renderFields(porIds(G_BUQUE),$('gBuque'));renderFields(porIds(G_TEC),$('gTec'));renderFields(porIds(G_HOR),$('gHor'));
+  renderFields(MANUAL.filter(f=>!G_HOR.includes(f.id)),$('gManual'));renderFields(PLANO,$('gPlano'));
+}
 const NOTA=[
   {id:'nroNota',label:'Nº de nota',mode:'numeric',ph:'ej. 2171'},
   {id:'fechaNota',label:'Fecha de la nota',type:'date'},
@@ -696,6 +763,7 @@ const PLANO=[
   {id:'etf',label:'ETF (fin estimado)',opt:1,ph:'ej. 17/11 entre 15 y 17 hs'},
 ];
 const ALL=[...MANUAL,...SERGIO,...NOTA,...LISTADO,...PLANO];
+function ALL_SRC(){return ALL;}
 const state={v:{},d:null,tab:'planilla',first:{}};
 
 function isOpt(f){return f.opt||(f.optIf&&f.optIf());}
@@ -766,12 +834,13 @@ function refresh(){
     host.querySelectorAll('.field').forEach(box=>{
       const f=ALL.find(x=>x.id===box.dataset.id);const opt=isOpt(f);
       box.classList.toggle('opt',!!opt&&f.type!=='check');
-      const miss=!opt&&isEmpty(f);box.classList.toggle('missing',miss);
+      const miss=!opt&&isEmpty(f);box.classList.toggle('missing',miss);box.classList.toggle('ok',!isEmpty(f));
       if(miss){cnt[tab]++;state.first[tab]=state.first[tab]||box;}
     });
   }
   autoIniEfe();
   if(!state.d.total){cnt.planilla++;state.first.planilla=state.first.planilla||$('secTurnos');}
+  progreso();
   $('stTotal').textContent=state.d.total?fmtTons(state.d.total)+' t':'—';
   renderTabla();renderListado();const notaFalta=renderNota();cnt.nota+=notaFalta.length;state.notaFalta=notaFalta;
   $('cntPlanilla').textContent=cnt.planilla||'';$('cntPlanilla').hidden=!cnt.planilla;
@@ -923,6 +992,7 @@ async function archivos(tab){
 function listo(tab){
   if(!state.cnt[tab])return true;
   const el=state.first[tab]||$('notaPrev');
+  for(let p=el.closest('details');p;p=p.parentElement&&p.parentElement.closest('details'))p.open=true;
   el.scrollIntoView({behavior:'smooth',block:'center'});
   const i=state.first[tab]&&el.querySelector('input,select');if(i)setTimeout(()=>i.focus({preventScroll:true}),350);
   return false;
@@ -976,12 +1046,12 @@ function iniciar(d,saved){
     }
     const mano=d.fuente==='mano';
     $('lManual').textContent=mano?'Estos datos no vienen en el parte. Algunos quedan guardados de la última vez.':'Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.';
-    $('hSergio').textContent=d.manual?'Datos del buque':mano?'Datos leídos del parte':'Datos del Excel de Sergio';
-    $('lSergio').textContent=d.manual?'Horarios y datos del buque. Los puede ir cargando cualquiera a medida que pasan.':mano?'Se leyeron de la letra a mano. Revisalos contra el papel y corregí lo que haga falta.':'Ya están cargados. Revisalos y corregí lo que haga falta.';
+    $('hSergio').textContent='Buque';
+    $('lSergio').textContent=d.manual?'Se carga una vez, cuando atraca.':mano?'Se leyeron de la letra a mano. Revisalos contra el papel y corregí lo que haga falta.':'Ya están cargados. Revisalos y corregí lo que haga falta.';
     $('lDem').textContent=d.manual?'Cargá cada corte en que paró todo el buque, con su fecha. Si se pisan dos, se cuentan una sola vez. Destildá las que no se descuentan.':mano?'Las saqué del renglón Demoras del parte. Corregí lo que se haya leído mal y destildá las que no se descuentan.':'Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.';
     $('secTurnos').hidden=false;state.nBod=Math.max(7,...d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
     state.demRender=null;
-    renderFields(MANUAL,$('gManual'));renderFields(SERGIO,$('gSergio'));renderFields(NOTA,$('gNota'));renderFields(PLANO,$('gPlano'));
+    renderGrupos();renderFields(NOTA,$('gNota'));
     bindIni();if(!S(state.v.tipoBuque))state.v.tipoBuque=store.get('tipoBuque','')||'BULK CARRIER';if(!S(state.v.cargador))state.v.cargador=store.get('cargador:'+S(d.exportador).toUpperCase(),'')||S(d.exportador).split(/\s+/)[0].toUpperCase();renderFields(LISTADO,$('gListado'));
     $('shipSub').innerHTML=[d.codigo&&'Nº '+d.codigo,d.unidad&&'Unidad '+d.unidad,d.destino&&'Destino '+d.destino].filter(Boolean).map(t=>'<span>'+t.replace(/</g,'&lt;')+'</span>').join('');
     $('stCereal').textContent=d.cereal||'—';$('stExp').textContent=d.exportador||'—';
@@ -1873,7 +1943,7 @@ function aplicarPend(){
 function bindIni(){const f=document.querySelector('.field[data-id=iniEfe]');if(f)f.addEventListener('input',()=>{state.iniEfeManual=true;state.v._iniManual='1';},true);}
 function redibujar(){
   const y=window.scrollY;
-  renderFields(MANUAL,$('gManual'));renderFields(SERGIO,$('gSergio'));renderFields(NOTA,$('gNota'));renderFields(LISTADO,$('gListado'));renderFields(PLANO,$('gPlano'));bindIni();
+  renderGrupos();renderFields(NOTA,$('gNota'));renderFields(LISTADO,$('gListado'));bindIni();
   state.nBod=Math.max(state.nBod||7,...state.d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
   state.demRender=null;refresh();window.scrollTo(0,y);
 }
@@ -2048,5 +2118,27 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('cqModal').hidde
 $('cqShare').addEventListener('click',async()=>{if(!cqActual)return;try{await navigator.share({files:[new File([cqActual.blob],cqActual.nombre,{type:'image/png'})]});}catch(e){if(e.name!=='AbortError')toast('No se pudo compartir. Probá con Descargar.');}});
 $('cqCopy').addEventListener('click',async()=>{if(!cqActual)return;try{await navigator.clipboard.write([new ClipboardItem({'image/png':cqActual.blob})]);toast('Imagen copiada. Pegala en el chat con Ctrl+V.');}catch(e){toast('No se pudo copiar. Probá con Descargar.');}});
 $('cqDl').addEventListener('click',()=>{if(cqActual)bajar({blob:cqActual.blob,fname:cqActual.nombre});});
+
+/* ---------- progreso por sección ---------- */
+function progreso(){
+  const cuenta=host=>{let tot=0,ok=0;host.querySelectorAll('.field').forEach(b=>{if(b.classList.contains('opt'))return;tot++;if(!b.classList.contains('missing'))ok++;});return [ok,tot];};
+  const pinta=(id,[ok,tot],txtOk)=>{const el=$('prog-'+id);const i=document.querySelector(`#pasosNav i[data-p="${id}"]`);
+    const listo=tot&&ok>=tot;const t=tot?(listo?(txtOk||'Completo'):`${ok} de ${tot}`):'';
+    if(el){el.textContent=t;el.classList.toggle('listo',!!listo);}
+    if(i){i.className=listo?'listo':ok?'medio':'';i.title=t;}};
+  pinta('pBuque',cuenta($('gBuque')));pinta('tec',cuenta($('gTec')));
+  const [ho,ht]=cuenta($('gHor'));const hf=[...$('gHor').querySelectorAll('.field')];let ult=-1;hf.forEach((b,i)=>{if(b.classList.contains('ok'))ult=i;});const prox=hf.slice(ult+1).find(b=>!b.classList.contains('ok'));
+  pinta('pHor',[ho,ht]);if(prox&&ho){$('prog-pHor').textContent=`Sigue: ${prox.querySelector('span').textContent}`;}
+  const nt=state.d.turnos.length;$('prog-secTurnos').textContent=nt?`${nt} turno${nt>1?'s':''} · ${fmtTons(state.d.total||0)} t`:'Sin turnos';
+  const it=document.querySelector('#pasosNav i[data-p="secTurnos"]');if(it)it.className=nt?'medio':'';
+  const nd=state.d.demList.filter(x=>x.on).length;$('prog-pDem').textContent=nd?`${nd} demora${nd>1?'s':''}`:'Sin demoras';
+  const idm=document.querySelector('#pasosNav i[data-p="pDem"]');if(idm)idm.className=nd?'medio':'';
+  pinta('pAdm',cuenta($('gManual')));
+  $('hor-actual')&&0;
+  $('gHor').querySelectorAll('.field').forEach(b=>b.classList.toggle('prox',b===prox));
+}
+document.getElementById('pasosNav').addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();
+  const el=document.querySelector(a.getAttribute('href'));if(!el)return;if(el.id==='pAdm')$('admDet').open=true;
+  window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-70,behavior:'smooth'});});
 </script>
 </body></html>
