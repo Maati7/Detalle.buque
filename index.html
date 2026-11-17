@@ -9,6 +9,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.13.2/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.13.2/firebase-auth-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.13.2/firebase-firestore-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
@@ -175,6 +178,48 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
 .dem .ed input.falta{border-color:var(--amber);background:var(--amber-bg)}
 .dem li.off .ed input{opacity:.45;text-decoration:line-through}
 .dem .x{border:0;background:transparent;color:var(--steel);font-size:18px;width:32px;height:32px;border-radius:6px}
+.login{margin:40px auto 0;max-width:380px;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:22px 20px;display:grid;gap:12px}
+.login h2{margin:0;font:700 24px/1.1 "Barlow Condensed",sans-serif;color:var(--harbor)}
+.login p{margin:0;color:var(--steel);font-size:15px}
+.login input{font:500 17px/1.3 Barlow,sans-serif;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;width:100%}
+.who{display:flex;align-items:center;gap:12px;color:var(--steel);font-size:14px;white-space:nowrap}
+.homebar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.homebar input{flex:1 1 200px;font:500 16px Barlow,sans-serif;border:1px solid var(--rule);border-radius:10px;padding:11px 12px;min-width:0}
+.hsec{margin-top:24px}
+.hsec>h2{margin:0 0 10px;font:700 22px/1.1 "Barlow Condensed",sans-serif;display:flex;align-items:center;gap:8px}
+.hsec>h2 .cnt{font:600 14px Barlow,sans-serif;background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:0 8px;color:var(--steel)}
+.blist{display:grid;gap:10px}
+.bcard{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--harbor-2);border-radius:12px;padding:12px 14px;color:var(--ink)}
+.bcard:hover{border-color:var(--harbor-2)}
+.bcard.term{border-left-color:var(--steel);opacity:.9}
+.bcard .r1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.bcard .nm{font:700 22px/1.1 "Barlow Condensed",sans-serif;color:var(--harbor)}
+.bcard .chip{font-size:13px;font-weight:600;border-radius:10px;padding:1px 8px;background:var(--ok-bg);color:var(--ok)}
+.bcard.term .chip{background:var(--paper);color:var(--steel)}
+.bcard .r2{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:14px;color:var(--steel)}
+.bcard .r2 b{color:var(--ink);font-weight:600}
+.bcard .upd{margin-top:6px;font-size:13px;color:var(--steel)}
+.vacio-l{color:var(--steel);background:var(--card);border:1px dashed var(--rule);border-radius:12px;padding:14px}
+.shiptop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.shiptop select{font:600 15px Barlow,sans-serif;border:0;border-radius:8px;padding:6px 10px;background:rgba(255,255,255,.18);color:#fff}
+.shiptop select option{color:#000}
+.shiptop .sync{font-size:13px;opacity:.85;margin-left:auto}
+.shiptop .sync.bad{opacity:1;color:#FFD6D2;font-weight:600}
+.shiptop .link{color:#fff;opacity:.9;font-size:14px}
+.sug{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--amber-bg);color:#7A4E00;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.sug .btn{padding:8px 14px;font-size:15px}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:15px;z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.25);max-width:calc(100% - 32px)}
+.borrar{margin-top:30px;text-align:center}
+.borrar .link{color:var(--bad)}
+.coordbox{margin-top:12px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;display:grid;gap:10px}
+.coordbox p{margin:0;color:var(--steel);font-size:15px}
+.coordbox .row{display:flex;gap:10px;flex-wrap:wrap}
+.coordbox input{flex:1 1 200px;font:500 16px Barlow,sans-serif;border:1px solid var(--rule);border-radius:8px;padding:9px 12px;min-width:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips span{display:inline-flex;align-items:center;gap:6px;background:var(--paper);border:1px solid var(--rule);border-radius:16px;padding:4px 6px 4px 12px;font-weight:600}
+.chips button{border:0;background:transparent;color:var(--steel);font-size:16px;width:24px;height:24px;border-radius:12px}
+.chips em{color:var(--steel);font-style:normal}
+.tabs.solo{grid-template-columns:1fr}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--harbor-2);outline-offset:2px}
 </style>
@@ -183,16 +228,41 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
 <div class="wrap">
   <header class="top">
     <h1>Detalle de buque</h1>
-    <button class="link" id="otro" hidden>Cargar otro archivo</button>
+    <button class="link" id="otro" hidden>← Buques</button>
+    <span class="who" id="who" hidden><span id="whoName"></span><button class="link" id="salir">Salir</button></span>
   </header>
 
-  <label class="drop" id="drop">
+  <form class="login" id="login" hidden>
+    <h2>Ingresar</h2>
+    <p>Con el mismo usuario del panel de Administración.</p>
+    <input id="lgUser" autocomplete="username" placeholder="Usuario" aria-label="Usuario" autocapitalize="none">
+    <input id="lgPass" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña">
+    <button class="btn" id="lgBtn" type="submit">Entrar</button>
+    <div class="err" id="lgErr" hidden></div>
+  </form>
+
+  <section id="home" hidden>
+    <div class="homebar">
+      <button class="btn" id="nuevo">Nuevo buque</button>
+      <button class="btn alt" id="importar">Desde Excel o parte</button>
+      <input id="buscar" placeholder="Buscar buque…" aria-label="Buscar buque">
+      <button class="link" id="coordBtn" hidden>Usuarios de coordinación</button>
+    </div>
+    <div class="coordbox" id="coordBox" hidden>
+      <p>Estos usuarios ven y cargan los buques, pero no ven la Nota ENAPRO ni el Listado. Escribí el usuario como entra (sin @…).</p>
+      <div class="chips" id="coordList"></div>
+      <div class="row"><input id="coordIn" placeholder="ej. jperez" aria-label="Usuario de coordinación" autocapitalize="none"><button class="btn" id="coordAdd">Agregar</button></div>
+    </div>
+    <div class="hsec"><h2>Operando <span class="cnt" id="nOper"></span></h2><div class="blist" id="lOper"></div></div>
+    <div class="hsec"><h2>Terminados <span class="cnt" id="nTerm"></span></h2><div class="blist" id="lTerm"></div></div>
+  </section>
+
+  <label class="drop" id="drop" hidden>
     <strong>Subí el Excel de Sergio o el parte escrito a mano</strong>
     <p>Del Excel leo la planilla de carga. Del parte leo la letra a mano: un PDF escaneado o fotos (si la carga por turno está en otra hoja, subí las fotos juntas). Completo todo lo que se pueda y después te pido solo lo que falta.</p>
     <span class="btn">Elegir archivo</span>
     <input type="file" id="file" multiple accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf,image/*">
   </label>
-  <p style="text-align:center;margin:10px 0 0"><button class="link" id="sinLeer">O completá el parte a mano, sin leerlo</button></p>
   <div class="leyendo" id="leyendo" role="status" hidden></div>
   <div class="apikey" id="apikey" hidden>
     <p id="apikeyMsg">Para leer la letra a mano, la app le manda la imagen a Claude. Pegá acá tu clave de la API de Anthropic (empieza con sk-ant-). Queda guardada solo en este navegador.</p>
@@ -202,6 +272,11 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
 
   <main id="main" hidden>
     <div class="ship">
+      <div class="shiptop">
+        <select id="estado" aria-label="Estado del buque"><option>Operando</option><option>Terminado</option></select>
+        <button class="link" id="completar">Completar desde archivo</button>
+        <span class="sync" id="sync" role="status"></span>
+      </div>
       <div class="name" id="shipName"></div>
       <div class="sub" id="shipSub"></div>
       <div class="stats">
@@ -215,15 +290,10 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
       <button role="tab" id="tbNota" aria-selected="false">Nota ENAPRO<span class="cnt" id="cntNota"></span></button>
       <button role="tab" id="tbListado" aria-selected="false">Listado</button>
     </div>
+    <div class="sug" id="sug" hidden><span>Este buque ya zarpó.</span><button class="btn" id="darTerm">Darlo por terminado</button></div>
     <ul class="checks" id="checks"></ul>
 
     <div id="tabPlanilla">
-    <section class="block">
-      <h2>Completar a mano</h2>
-      <p class="lead" id="lManual">Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.</p>
-      <div class="grid" id="gManual"></div>
-    </section>
-
     <section class="block">
       <h2 id="hSergio">Datos del Excel de Sergio</h2>
       <p class="lead" id="lSergio">Ya están cargados. Revisalos y corregí lo que haga falta.</p>
@@ -232,7 +302,7 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
 
     <section class="block" id="secTurnos" hidden>
       <h2>Toneladas por turno</h2>
-      <p class="lead">Revisá lo que se leyó, o cargalo acá si el parte no trae la carga por turno. La tabla de abajo se arma sola.</p>
+      <p class="lead">Cargá las toneladas de cada turno a medida que se cargan. La tabla de abajo se arma sola.</p>
       <div class="tablewrap"><table class="tedit" id="tEdit"></table></div>
       <div class="tools"><button class="btn alt" id="addTurno">Agregar turno</button><label>Bodegas <input id="nBod" inputmode="numeric" value="7"></label></div>
     </section>
@@ -243,6 +313,23 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
       <div class="tablewrap"><table id="tCarga"></table></div>
       <div class="tablewrap" style="margin-top:12px"><table id="tManos"></table></div>
     </section>
+    <section class="block">
+      <h2>Demoras sin operatividad</h2>
+      <p class="lead" id="lDem">Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.</p>
+      <div class="tablewrap"><ul class="dem" id="lDemoras"></ul></div>
+      <div class="tools"><button class="btn alt" id="addDem">Agregar demora</button></div>
+      <div class="sums">
+        <div><small>Efectiva</small><b id="sEfe"></b></div>
+        <div><small>Demoras</small><b id="sDem"></b></div>
+        <div><small>Efectiva neta</small><b id="sNeta"></b></div>
+      </div>
+    </section>
+    <section class="block">
+      <h2>Datos administrativos</h2>
+      <p class="lead" id="lManual">Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.</p>
+      <div class="grid" id="gManual"></div>
+    </section>
+
     </div>
 
     <div id="tabNota" hidden>
@@ -261,17 +348,6 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
       <div class="tablewrap"><table id="tEstadia"></table></div>
       <div class="tablewrap" style="margin-top:12px"><table id="tEfectiva"></table></div>
     </section>
-    <section class="block">
-      <h2>Demoras sin operatividad</h2>
-      <p class="lead" id="lDem">Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.</p>
-      <div class="tablewrap"><ul class="dem" id="lDemoras"></ul></div>
-      <div class="tools"><button class="btn alt" id="addDem">Agregar demora</button></div>
-      <div class="sums">
-        <div><small>Efectiva</small><b id="sEfe"></b></div>
-        <div><small>Demoras</small><b id="sDem"></b></div>
-        <div><small>Efectiva neta</small><b id="sNeta"></b></div>
-      </div>
-    </section>
     </div>
 
     <div id="tabListado" hidden>
@@ -282,7 +358,9 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
     </section>
     <div id="lsCards"></div>
     </div>
+    <div class="borrar"><button class="link" id="borrar">Borrar este buque</button></div>
   </main>
+  <div class="toast" id="toast" hidden role="status"></div>
 </div>
 
 <div class="modal" id="prev" hidden role="dialog" aria-modal="true" aria-labelledby="prevTit">
@@ -597,7 +675,7 @@ function renderFields(list,host){
 }
 function hintFor(f){
   const d=state.d;
-  if(f.id==='nro'){const last=store.get('nro','');const parts=[];if(last)parts.push('La última fue '+last+'.');if(d.nroSergio&&d.fuente==='excel')parts.push('Sergio lo numera '+d.nroSergio+'.');if(d.fuente==='mano'&&S(state.v.nro))parts.push('Leído del parte.');return parts.join(' ');}
+  if(f.id==='nro'){const last=store.get('nro','');const parts=[];if(last)parts.push('La última fue '+last+'.');if(d.nroSergio&&d.fuente==='excel')parts.push('Sergio lo numera '+d.nroSergio+'.');if(d.fuente==='mano'&&!d.manual&&S(state.v.nro))parts.push('Leído del parte.');return parts.join(' ');}
   if(f.id==='demoras'&&d.demorasUsadas.length)return 'Sumé lectura y cálculo de '+d.demorasUsadas.join(' y ')+'. Ajustalo si ustedes cuentan otra cosa.';
   if(f.id==='habilitado'&&d.habilitado_h&&d.fuente==='excel')return 'Sale de "previa a la carga" en las observaciones de Sergio.';
   if(f.id==='habilitado'&&d.fuente==='mano')return 'Es la habilitación de bodegas del parte.';
@@ -620,7 +698,7 @@ function refresh(){
     });
   }
   autoIniEfe();
-  if(state.d.fuente==='mano'&&!state.d.total){cnt.planilla++;state.first.planilla=state.first.planilla||$('secTurnos');}
+  if(!state.d.total){cnt.planilla++;state.first.planilla=state.first.planilla||$('secTurnos');}
   $('stTotal').textContent=state.d.total?fmtTons(state.d.total)+' t':'—';
   renderTabla();renderListado();const notaFalta=renderNota();cnt.nota+=notaFalta.length;state.notaFalta=notaFalta;
   $('cntPlanilla').textContent=cnt.planilla||'';$('cntPlanilla').hidden=!cnt.planilla;
@@ -630,7 +708,13 @@ function refresh(){
   else if(n){st.textContent=n===1?'Falta 1 dato':`Faltan ${n} datos`;st.className='status pend';}
   else{st.textContent='Todo completo';st.className='status ready';}
   state.cnt=cnt;
-  $('shipName').textContent=(state.v.buque||'').toUpperCase();
+  $('shipName').textContent=(state.v.buque||'').toUpperCase()||'BUQUE NUEVO';
+  const v=state.v;
+  $('shipSub').innerHTML=[S(v.nro)&&'Planilla '+S(v.nro),S(v.codigo)&&'Nº '+S(v.codigo),S(v.unidad)&&'Unidad '+S(v.unidad),S(v.destino)&&'Destino '+S(v.destino)].filter(Boolean).map(t=>'<span>'+esc(t)+'</span>').join('');
+  $('stCereal').textContent=S(v.cereal)||'—';$('stExp').textContent=S(v.exportador)||'—';
+  $('estado').value=v.estado||'Operando';
+  $('sug').hidden=!(v.zarpo_f&&v.zarpo_h&&v.estado!=='Terminado');
+  sync();
   pregenerar();
 }
 /* ---------- filas de la tabla ---------- */
@@ -777,6 +861,7 @@ async function bajar({blob,fname}){
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},4000);
 }
 function setTab(t){
+  if(typeof esCoord==='function'&&auth.currentUser&&esCoord())t='planilla';
   state.tab=t;
   ['Planilla','Nota','Listado'].forEach(k=>{$('tb'+k).setAttribute('aria-selected',t===k.toLowerCase());$('tab'+k).hidden=t!==k.toLowerCase();});
   $('dl').hidden=t!=='planilla';$('dlCuadro').hidden=$('dlNota').hidden=t!=='nota';$('vista').hidden=t==='listado';
@@ -795,33 +880,36 @@ async function cargar(files){
   if(!esExcel)return cargarParte(files);
   try{
     const sheets=await readWorkbook(await files[0].arrayBuffer());
-    iniciar(extract(sheets));
+    recibir(extract(sheets));
   }catch(e){console.error(e);$('err').textContent='No pude leer el archivo: '+(e.message||e)+' Probá con el Excel original de Sergio (.xlsx).';$('err').hidden=false;}
 }
-function iniciar(d){
+function iniciar(d,saved){
   {
-    state.d=d;state.v={};state.iniEfeManual=false;
+    state.d=d;state.v={};state.iniEfeManual=false;state.merge=false;
     for(const f of SERGIO){if(f.type==='dt'){state.v[f.id+'_f']=d[f.id+'_f']||'';state.v[f.id+'_h']=d[f.id+'_h']||'';}else state.v[f.id]=d[f.id]||'';}
     for(const f of [...MANUAL,...NOTA]){if(f.type==='dt'){state.v[f.id+'_f']='';state.v[f.id+'_h']='';continue;}
       state.v[f.id]=(f.remember?store.get(f.id,''):'')||f.def||'';}
     state.v.draft=d.draft||'';state.v.demorasSN=d.demorasSN||'';state.v.demoras=d.demoras||'';
     if(d.pre)for(const [k,val] of Object.entries(d.pre))if(S(val))state.v[k]=val;
     const now=new Date();state.v.fechaNota=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;state.v.firma=store.get('firmaSel','');if(!firmas().some(x=>x.id===state.v.firma)&&state.v.firma!=='no')state.v.firma=FIRMAS_FIJAS[0].id;
+    if(saved)Object.assign(state.v,saved);else state.v.estado='Operando';
     autoIniEfe();
+    if(!saved){
     const ef=tramo('iniEfe','finalizo');
     if(ef&&ef.length===1)d.demList.forEach(x=>{if(!x.fecha)x.fecha=ef[0].fecha;});
     if(ef)d.demList.forEach(x=>{const r=ef.find(y=>y.fecha===x.fecha);if(x.fecha&&!r){x.on=false;return;}
       if(r){const a=toMin(x.desde);let b=toMin(x.hasta);if(b<=a)b+=1440;if(a<r.desde||(b>r.hasta&&b<=1440))x.on=false;}});
     const exp1=S(d.exportador).split(/\s+/)[0];if(exp1)state.v.habilita='SI / '+exp1.toUpperCase();
+    }
     const mano=d.fuente==='mano';
     $('lManual').textContent=mano?'Estos datos no vienen en el parte. Algunos quedan guardados de la última vez.':'Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.';
-    $('hSergio').textContent=mano?'Datos leídos del parte':'Datos del Excel de Sergio';
-    $('lSergio').textContent=d.manual?'Copialos del parte.':mano?'Se leyeron de la letra a mano. Revisalos contra el papel y corregí lo que haga falta.':'Ya están cargados. Revisalos y corregí lo que haga falta.';
+    $('hSergio').textContent=d.manual?'Datos del buque':mano?'Datos leídos del parte':'Datos del Excel de Sergio';
+    $('lSergio').textContent=d.manual?'Horarios y datos del buque. Los puede ir cargando cualquiera a medida que pasan.':mano?'Se leyeron de la letra a mano. Revisalos contra el papel y corregí lo que haga falta.':'Ya están cargados. Revisalos y corregí lo que haga falta.';
     $('lDem').textContent=mano?'Las saqué del renglón Demoras del parte. Corregí lo que se haya leído mal y destildá las que no se descuentan.':'Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.';
-    $('secTurnos').hidden=!mano;state.nBod=Math.max(7,...d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
+    $('secTurnos').hidden=false;state.nBod=Math.max(7,...d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
     state.demRender=null;
     renderFields(MANUAL,$('gManual'));renderFields(SERGIO,$('gSergio'));renderFields(NOTA,$('gNota'));
-    const fIni=document.querySelector('.field[data-id=iniEfe]');if(fIni)fIni.addEventListener('input',()=>{state.iniEfeManual=true;},true);state.v.tipoBuque=store.get('tipoBuque','')||'BULK CARRIER';state.v.cargador=store.get('cargador:'+S(d.exportador).toUpperCase(),'')||S(d.exportador).split(/\s+/)[0].toUpperCase();renderFields(LISTADO,$('gListado'));
+    bindIni();if(!S(state.v.tipoBuque))state.v.tipoBuque=store.get('tipoBuque','')||'BULK CARRIER';if(!S(state.v.cargador))state.v.cargador=store.get('cargador:'+S(d.exportador).toUpperCase(),'')||S(d.exportador).split(/\s+/)[0].toUpperCase();renderFields(LISTADO,$('gListado'));
     $('shipSub').innerHTML=[d.codigo&&'Nº '+d.codigo,d.unidad&&'Unidad '+d.unidad,d.destino&&'Destino '+d.destino].filter(Boolean).map(t=>'<span>'+t.replace(/</g,'&lt;')+'</span>').join('');
     $('stCereal').textContent=d.cereal||'—';$('stExp').textContent=d.exportador||'—';
     const ck=[];
@@ -831,12 +919,13 @@ function iniciar(d){
     if(mano&&d.dudas&&d.dudas.length)ck.push(['warn','Lecturas dudosas: '+d.dudas.map(esc).join(' · ')]);
     if(nf.length&&!d.manual)ck.push(['warn',(mano?'No encontré en el parte: ':'No encontré en el Excel de Sergio: ')+nf.join(', ')+'. Completalos en la planilla.']);
     $('checks').innerHTML=ck.map(([c,t])=>`<li class="${c}">${t}</li>`).join('');
-    $('drop').hidden=true;$('main').hidden=false;$('bar').hidden=false;$('otro').hidden=false;
+    $('drop').hidden=true;$('home').hidden=true;$('main').hidden=false;$('bar').hidden=false;$('otro').hidden=false;
     setTab(state.tab);window.scrollTo(0,0);
+    if(!saved)crearDoc();
   }
 }
 $('file').addEventListener('change',e=>{const f=e.target.files;if(f&&f.length)cargar(f);e.target.value='';});
-$('otro').addEventListener('click',()=>$('file').click());
+
 $('dl').addEventListener('click',async()=>{if(!listo('planilla'))return;const [x]=await archivos('planilla');recordar('planilla');bajar(x);});
 $('dlNota').addEventListener('click',async()=>{if(!listo('nota'))return;const [x]=await archivos('nota');recordar('nota');bajar(x);});
 $('dlCuadro').addEventListener('click',async()=>{if(!listo('nota'))return;const [,x]=await archivos('nota');recordar('nota');bajar(x);});
@@ -881,7 +970,7 @@ function diasDem(efe,dem){
   return dias;
 }
 function autoIniEfe(){
-  if(state.iniEfeManual)return;
+  if(state.iniEfeManual||state.v._iniManual)return;
   const v=state.v;if(state.d.fuente!=='mano'||!(v.comenzo_f&&v.comenzo_h)){if(v.atraco_f&&v.atraco_h){v.iniEfe_f=v.atraco_f;v.iniEfe_h=v.atraco_h;}}
   else{const c=dateToSerial(v.comenzo_f)*1440+toMin(v.comenzo_h);let t=Math.floor(c/360)*360;
     if(v.atraco_f&&v.atraco_h){const a=dateToSerial(v.atraco_f)*1440+toMin(v.atraco_h);if(a>t)t=a;}
@@ -1486,13 +1575,13 @@ async function leerParte(imgs){
 }
 async function cargarParte(files){
   pendientes=files;$('apikey').hidden=true;$('err').hidden=true;
-  $('leyendo').textContent='Leyendo el parte. Puede tardar un minuto…';$('leyendo').hidden=false;$('drop').hidden=true;
+  $('leyendo').textContent='Leyendo el parte. Puede tardar un minuto…';$('leyendo').hidden=false;
   try{
     const imgs=await aImagenes(files);if(!imgs.length)throw new Error('No encontré páginas para leer.');
     const r=await leerParte(imgs);
-    $('leyendo').hidden=true;pendientes=null;iniciar(deParte(r));
+    $('leyendo').hidden=true;pendientes=null;recibir(deParte(r));
   }catch(e){
-    console.error(e);$('leyendo').hidden=true;$('drop').hidden=!$('main').hidden;
+    console.error(e);$('leyendo').hidden=true;
     if(e.code==='nokey'||e.code==='badkey'){
       $('apikeyMsg').textContent=e.code==='badkey'?'La clave guardada no funcionó. Pegá una clave válida de la API de Anthropic (empieza con sk-ant-).':'Para leer la letra a mano, la app le manda la imagen a Claude. Pegá acá tu clave de la API de Anthropic (empieza con sk-ant-). Queda guardada solo en este navegador.';
       $('apikey').hidden=false;$('apikeyIn').focus();return;}
@@ -1500,7 +1589,6 @@ async function cargarParte(files){
     $('err').textContent='No pude leer el parte: '+(e.message||e)+' Probá con una foto más nítida y derecha.';$('err').hidden=false;
   }
 }
-$('sinLeer').addEventListener('click',()=>{$('err').hidden=true;$('apikey').hidden=true;const d=deParte({});d.manual=true;iniciar(d);});
 $('apikeyOk').addEventListener('click',()=>{const k=S($('apikeyIn').value);if(!/^sk-ant-/.test(k)){$('apikeyMsg').textContent='La clave tiene que empezar con sk-ant-.';return;}
   store.set('apikey',k);$('apikeyIn').value='';if(pendientes)cargarParte(pendientes);else $('apikey').hidden=true;});
 $('apikeyIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('apikeyOk').click();});
@@ -1512,10 +1600,10 @@ $('addDem').addEventListener('click',()=>{const dl=state.d.demList,last=dl[dl.le
 function numTons(s){s=S(s).replace(/\s/g,'');if(!s)return 0;
   if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');else if(s.includes(','))s=s.replace(',','.');
   else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');const n=parseFloat(s);return isNaN(n)?0:n;}
-function recalcTurnos(){const d=state.d;d.turnos.forEach(t=>{t.tons=t.tons.filter(x=>x.tons).sort((a,b)=>a.bodega-b.bodega);t.total=t.tons.reduce((s,x)=>s+x.tons,0);});
+function recalcTurnos(dd){const d=dd||state.d;d.turnos.forEach(t=>{t.tons=t.tons.filter(x=>x.tons).sort((a,b)=>a.bodega-b.bodega);t.total=t.tons.reduce((s,x)=>s+x.tons,0);});
   d.total=d.turnos.reduce((s,t)=>s+t.total,0);const exps=[...new Set(d.turnos.map(t=>t.exp).filter(Boolean))];d.multiExp=exps.length>1;}
 function renderTurnosEdit(){
-  const d=state.d;if(!d||d.fuente!=='mano')return;const B=state.nBod||7,tb=$('tEdit');
+  const d=state.d;if(!d)return;const B=state.nBod||7,tb=$('tEdit');
   let hh='<tr><th>Fecha</th><th>Turno</th>';for(let b=1;b<=B;b++)hh+=`<th class="n">Bod. ${b}</th>`;hh+='<th class="n">Manos</th><th></th></tr>';
   tb.innerHTML=hh;
   d.turnos.forEach((t,i)=>{const tr=document.createElement('tr');
@@ -1538,5 +1626,189 @@ $('addTurno').addEventListener('click',()=>{const d=state.d,last=d.turnos[d.turn
   d.turnos.push({fecha,turno,tons:[],total:0,manos:last?last.manos:null,exp:''});renderTurnosEdit();refresh();
   const r=$('tEdit').lastElementChild;const i=r&&r.querySelector('[data-b]');if(i)i.focus();});
 $('nBod').addEventListener('change',e=>{const n=parseInt(e.target.value);if(n>=1&&n<=12){state.nBod=n;renderTurnosEdit();}else e.target.value=state.nBod;});
+
+/* ---------- buques compartidos (Firebase) ---------- */
+firebase.initializeApp({apiKey:"AIzaSyCOmTzD10kEyVWcwXVZjr3o99cK8JgQYuk",authDomain:"posicupos.firebaseapp.com",projectId:"posicupos",storageBucket:"posicupos.firebasestorage.app",messagingSenderId:"420069933145",appId:"1:420069933145:web:001f62cbad90c11c90f148"});
+const auth=firebase.auth(),db=firebase.firestore(),COL=db.collection('buques');
+const DOM='@posicupos.firebaseapp.com';
+const toEmail=u=>{u=u.trim().toLowerCase();return u.includes('@')?u:u+DOM;};
+const toUser=e=>(e||'').replace(DOM,'');
+const yo=()=>toUser(auth.currentUser&&auth.currentUser.email);
+const WID=Math.random().toString(36).slice(2);
+const TS=()=>firebase.firestore.FieldValue.serverTimestamp();
+const limpio=x=>JSON.parse(JSON.stringify(x,(k,val)=>val===undefined?null:val));
+let unsubLista=null;
+state.id=null;state.synced=null;state.unsubDoc=null;state.lista=[];
+
+function toast(t){const el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,3500);}
+function setSync(t,bad){$('sync').textContent=t;$('sync').classList.toggle('bad',!!bad);}
+const errAuth=c=>({'auth/invalid-credential':'Usuario o contraseña incorrectos.','auth/wrong-password':'Usuario o contraseña incorrectos.','auth/user-not-found':'Usuario o contraseña incorrectos.','auth/invalid-login-credentials':'Usuario o contraseña incorrectos.','auth/invalid-email':'Usuario o contraseña incorrectos.','auth/too-many-requests':'Demasiados intentos. Esperá unos minutos y probá de nuevo.','auth/network-request-failed':'Sin conexión.'})[c]||'No se pudo entrar.';
+$('login').addEventListener('submit',async e=>{e.preventDefault();$('lgErr').hidden=true;$('lgBtn').disabled=true;
+  try{await auth.signInWithEmailAndPassword(toEmail($('lgUser').value),$('lgPass').value);$('lgPass').value='';}
+  catch(err){$('lgErr').textContent=errAuth(err.code);$('lgErr').hidden=false;}
+  $('lgBtn').disabled=false;});
+$('salir').addEventListener('click',async()=>{await volver();auth.signOut();});
+auth.onAuthStateChanged(u=>{
+  if(!u){if(unsubLista){unsubLista();unsubLista=null;}if(unsubRoles){unsubRoles();unsubRoles=null;}cerrarBuque();$('home').hidden=true;$('who').hidden=true;$('login').hidden=false;$('lgUser').focus();return;}
+  $('login').hidden=true;$('who').hidden=false;$('whoName').textContent=yo();
+  escucharLista();escucharRoles();aplicarRol();if(!state.id)mostrarHome();
+});
+
+/* lista de buques */
+function escucharLista(){
+  if(unsubLista)return;
+  unsubLista=COL.orderBy('updatedAt','desc').limit(300).onSnapshot(s=>{state.lista=s.docs.map(x=>({id:x.id,...x.data()}));renderLista();},
+    e=>{console.error(e);$('err').textContent='No pude leer la lista de buques ('+(e.code||e.message)+'). Revisá que la regla de Firestore para "buques" esté cargada.';$('err').hidden=false;});
+}
+const fCorta=f=>{if(!f)return '';const [d,h]=f.split(' ');const [y,m,dd]=d.split('-');return `${dd}/${m}${h?' '+h:''}`;};
+function hace(ts){if(!ts||!ts.toDate)return 'recién';const d=ts.toDate(),m=Math.round((Date.now()-d)/60000);
+  if(m<1)return 'recién';if(m<60)return `hace ${m} min`;if(m<1440&&d.getDate()===new Date().getDate())return 'hoy '+pad(d.getHours())+':'+pad(d.getMinutes());
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function renderLista(){
+  const q=nt($('buscar').value),L=state.lista.filter(x=>!q||nt(x.buque+' '+x.nro+' '+x.exportador).includes(q));
+  const card=x=>{const term=x.estado==='Terminado';
+    const datos=[x.cereal&&['Cereal',x.cereal],x.total?['A bordo',fmtTons(x.total)+' t']:null,x.atraco&&['Atracó',fCorta(x.atraco)],x.finalizo&&['Finalizó',fCorta(x.finalizo)],x.zarpo&&['Zarpó',fCorta(x.zarpo)]].filter(Boolean);
+    return `<button class="bcard${term?' term':''}" data-id="${esc(x.id)}"><div class="r1"><span class="nm">${esc(x.buque||'BUQUE NUEVO')}</span>${x.nro?`<span>Nº ${esc(x.nro)}</span>`:''}<span class="chip">${term?'Terminado':'Operando'}</span></div>
+      ${datos.length?`<div class="r2">${datos.map(([k,v])=>`<span>${k} <b>${esc(v)}</b></span>`).join('')}</div>`:''}
+      <div class="upd">${x.updatedBy?'Último cambio: '+esc(x.updatedBy)+', ':''}${hace(x.updatedAt)}</div></button>`;};
+  const op=L.filter(x=>x.estado!=='Terminado'),te=L.filter(x=>x.estado==='Terminado').slice(0,40);
+  $('nOper').textContent=op.length;$('nTerm').textContent=L.filter(x=>x.estado==='Terminado').length;
+  $('lOper').innerHTML=op.length?op.map(card).join(''):'<div class="vacio-l">No hay buques operando. Tocá «Nuevo buque» cuando atraque uno.</div>';
+  $('lTerm').innerHTML=te.length?te.map(card).join(''):'<div class="vacio-l">Todavía no hay buques terminados.</div>';
+}
+$('buscar').addEventListener('input',renderLista);
+document.addEventListener('click',e=>{const b=e.target.closest('.bcard');if(b)abrir(b.dataset.id);});
+function mostrarHome(){$('main').hidden=true;$('bar').hidden=true;$('otro').hidden=true;$('drop').hidden=true;$('home').hidden=false;$('err').hidden=true;renderLista();window.scrollTo(0,0);}
+$('nuevo').addEventListener('click',()=>{$('err').hidden=true;$('apikey').hidden=true;const d=deParte({});d.manual=true;iniciar(d);});
+$('importar').addEventListener('click',()=>{state.merge=false;$('file').click();});
+$('completar').addEventListener('click',()=>{state.merge=true;$('file').click();});
+
+/* abrir, crear y guardar */
+function resumen(){const v=state.v,fh=k=>v[k+'_f']?v[k+'_f']+(v[k+'_h']?' '+v[k+'_h']:''):'';
+  return {buque:S(v.buque).toUpperCase(),nro:S(v.nro),estado:v.estado==='Terminado'?'Terminado':'Operando',cereal:S(v.cereal),exportador:S(v.exportador),
+    total:state.d.total||0,atraco:fh('atraco'),finalizo:fh('finalizo'),zarpo:fh('zarpo')};}
+function snapD(){const d=state.d;return limpio({fuente:d.fuente||'',manual:!!d.manual,turnos:d.turnos||[],demList:d.demList||[],nroSergio:d.nroSergio||'',
+  totalSergio:d.totalSergio==null?null:d.totalSergio,dudas:d.dudas||[],demorasUsadas:d.demorasUsadas||[],expTabla:d.expTabla||'',exportador:d.exportador||''});}
+async function crearDoc(){
+  const v=limpio(state.v),d=snapD(),ref=COL.doc();state.id=ref.id;state.synced={v,d};setSync('Guardando…');
+  try{await ref.set({v,d,...resumen(),createdAt:TS(),createdBy:yo(),updatedAt:TS(),updatedBy:yo(),writer:WID});setSync('Guardado');escucharDoc(ref.id);}
+  catch(e){console.error(e);setSync('No se pudo guardar. Revisá la conexión.',true);state.id=null;}
+}
+async function abrir(id){
+  $('err').hidden=true;
+  try{const s=await COL.doc(id).get();if(!s.exists){toast('Ese buque ya no existe.');return;}
+    const x=s.data();const d=Object.assign(deParte({}),x.d||{});recalcTurnos.call(null,d);
+    iniciar(d,x.v||{});state.id=id;state.synced={v:limpio(state.v),d:snapD()};
+    // lo que el armado agregó por defecto (y no estaba guardado) se guarda una vez
+    state.synced.v=limpio(x.v||{});state.synced.d=limpio(Object.assign(snapD(),x.d||{}));
+    escucharDoc(id);setSync(x.updatedBy?'Último cambio: '+x.updatedBy+', '+hace(x.updatedAt):'');sync();
+  }catch(e){console.error(e);$('err').textContent='No pude abrir el buque: '+(e.code||e.message);$('err').hidden=false;}
+}
+let syncT=null;
+function sync(){if(!state.id||!state.synced)return;clearTimeout(syncT);syncT=setTimeout(guardar,700);}
+async function guardar(){
+  clearTimeout(syncT);if(!state.id||!state.synced)return;
+  const v=limpio(state.v),d=snapD(),up={},sv=state.synced.v,sd=state.synced.d;
+  for(const k of Object.keys(v))if(JSON.stringify(v[k])!==JSON.stringify(sv[k]))up['v.'+k]=v[k];
+  for(const k of Object.keys(d))if(JSON.stringify(d[k])!==JSON.stringify(sd[k]))up['d.'+k]=d[k];
+  if(!Object.keys(up).length)return;
+  Object.assign(up,resumen(),{updatedAt:TS(),updatedBy:yo(),writer:WID});
+  const id=state.id;setSync('Guardando…');
+  try{await COL.doc(id).update(up);if(state.id===id){Object.keys(up).forEach(k=>{if(k.startsWith('v.'))sv[k.slice(2)]=up[k];else if(k.startsWith('d.'))sd[k.slice(2)]=up[k];});setSync('Guardado');}}
+  catch(e){console.error(e);if(state.id===id)setSync('No se pudo guardar. Revisá la conexión.',true);}
+}
+window.addEventListener('beforeunload',()=>{guardar();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)guardar();});
+
+/* cambios de otros, en vivo */
+function escucharDoc(id){
+  if(state.unsubDoc)state.unsubDoc();
+  state.unsubDoc=COL.doc(id).onSnapshot(s=>{
+    if(state.id!==id)return;
+    if(!s.exists){toast('Otro usuario borró este buque.');cerrarBuque();mostrarHome();return;}
+    if(s.metadata.hasPendingWrites)return;
+    const x=s.data();if(x.writer===WID)return;
+    state.pend=x;aplicarPend();
+  },e=>console.error(e));
+}
+const editando=()=>{const a=document.activeElement;return a&&$('main').contains(a)&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.type!=='checkbox';};
+document.addEventListener('focusout',()=>setTimeout(aplicarPend,60));
+function aplicarPend(){
+  const x=state.pend;if(!x||!state.synced||editando())return;state.pend=null;
+  let cambio=false;const sv=state.synced.v,sd=state.synced.d;
+  for(const [k,val] of Object.entries(x.v||{}))if(JSON.stringify(val)!==JSON.stringify(sv[k])){state.v[k]=val;sv[k]=val;cambio=true;}
+  for(const [k,val] of Object.entries(x.d||{}))if(JSON.stringify(val)!==JSON.stringify(sd[k])){state.d[k]=JSON.parse(JSON.stringify(val));sd[k]=val;cambio=true;}
+  if(!cambio)return;
+  recalcTurnos();redibujar();
+  setSync('Último cambio: '+(x.updatedBy||'otro usuario')+', '+hace(x.updatedAt));toast('Actualizado por '+(x.updatedBy||'otro usuario'));
+}
+function bindIni(){const f=document.querySelector('.field[data-id=iniEfe]');if(f)f.addEventListener('input',()=>{state.iniEfeManual=true;state.v._iniManual='1';},true);}
+function redibujar(){
+  const y=window.scrollY;
+  renderFields(MANUAL,$('gManual'));renderFields(SERGIO,$('gSergio'));renderFields(NOTA,$('gNota'));renderFields(LISTADO,$('gListado'));bindIni();
+  state.nBod=Math.max(state.nBod||7,...state.d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
+  state.demRender=null;refresh();window.scrollTo(0,y);
+}
+function cerrarBuque(){if(state.unsubDoc){state.unsubDoc();state.unsubDoc=null;}state.id=null;state.synced=null;state.pend=null;setSync('');}
+async function volver(){await guardar();cerrarBuque();mostrarHome();}
+$('otro').addEventListener('click',volver);
+
+/* importar a un buque nuevo o completar el abierto */
+function recibir(d){if(state.merge&&state.id){state.merge=false;completar(d);}else{state.merge=false;iniciar(d);}}
+function completar(d){
+  const v=state.v;let n=0;
+  for(const f of SERGIO){if(f.type==='dt'){if(!v[f.id+'_f']&&d[f.id+'_f']){v[f.id+'_f']=d[f.id+'_f'];v[f.id+'_h']=d[f.id+'_h']||v[f.id+'_h']||'';n++;}}
+    else if(!S(v[f.id])&&S(d[f.id])){v[f.id]=d[f.id];n++;}}
+  if(d.pre)for(const [k,val] of Object.entries(d.pre))if(!S(v[k])&&S(val)){v[k]=val;n++;}
+  if(!S(v.demoras)&&S(d.demoras)){v.demoras=d.demoras;v.demorasSN=d.demorasSN;n++;}
+  if(!state.d.turnos.length&&d.turnos.length){state.d.turnos=d.turnos;n++;}
+  const ya=new Set(state.d.demList.map(x=>[x.fecha,x.desde,x.hasta].join('|')));
+  for(const x of d.demList){const k=[x.fecha,x.desde,x.hasta].join('|');if(!ya.has(k)){state.d.demList.push(x);ya.add(k);n++;}}
+  if(d.totalSergio)state.d.totalSergio=d.totalSergio;
+  if(!state.d.nroSergio&&d.nroSergio)state.d.nroSergio=d.nroSergio;
+  recalcTurnos();redibujar();
+  toast(n?'Se completaron los datos que estaban vacíos. Lo que ya estaba cargado no se tocó.':'El archivo no trajo nada que faltara.');
+}
+
+/* estado */
+$('estado').addEventListener('change',e=>{state.v.estado=e.target.value;refresh();guardar();});
+$('darTerm').addEventListener('click',()=>{state.v.estado='Terminado';refresh();guardar();toast('Quedó como terminado.');});
+$('borrar').addEventListener('click',async()=>{
+  const n=S(state.v.buque).toUpperCase()||'este buque';
+  if(!confirm(`¿Borrar ${n} para todos? No se puede deshacer.`))return;
+  const id=state.id;cerrarBuque();
+  try{await COL.doc(id).delete();toast('Buque borrado.');}catch(e){toast('No se pudo borrar: '+(e.code||e.message));}
+  mostrarHome();
+});
+
+/* ---------- roles: coordinación no ve Nota ENAPRO ni Listado ---------- */
+const ROLES=db.collection('buquesConfig').doc('roles');
+state.coord=[];state.rolesOk=false;let unsubRoles=null;
+const esCoord=()=>state.coord.includes(yo().toLowerCase());
+function escucharRoles(){
+  if(unsubRoles)return;
+  unsubRoles=ROLES.onSnapshot(s=>{state.coord=((s.exists&&s.data().coordinacion)||[]).map(x=>String(x).toLowerCase());state.rolesOk=true;aplicarRol();},
+    e=>{console.error(e);state.rolesOk=false;aplicarRol();});
+}
+function aplicarRol(){
+  const c=esCoord();
+  $('tbNota').hidden=$('tbListado').hidden=c;document.querySelector('.tabs').classList.toggle('solo',c);
+  $('coordBtn').hidden=c;if(c)$('coordBox').hidden=true;
+  if(c&&state.tab!=='planilla'&&!$('main').hidden)setTab('planilla');
+  if(c)state.tab='planilla';
+  const ul=$('coordList');
+  ul.innerHTML=state.coord.length?state.coord.map(u=>`<span>${esc(u)}<button type="button" data-u="${esc(u)}" aria-label="Quitar ${esc(u)}">✕</button></span>`).join(''):'<em>Todavía no hay usuarios de coordinación.</em>';
+  if(!state.rolesOk&&!c)ul.innerHTML='<em>No pude leer la lista. Revisá la regla de Firestore para "buquesConfig".</em>';
+}
+async function guardarRoles(lista){
+  try{await ROLES.set({coordinacion:[...new Set(lista)],updatedBy:yo(),updatedAt:TS()});}
+  catch(e){toast('No se pudo guardar la lista: '+(e.code||e.message));}
+}
+$('coordBtn').addEventListener('click',()=>{$('coordBox').hidden=!$('coordBox').hidden;if(!$('coordBox').hidden)$('coordIn').focus();});
+$('coordAdd').addEventListener('click',()=>{const u=toUser(toEmail($('coordIn').value));if(!u)return;
+  if(u===yo().toLowerCase()&&!confirm('¿Agregarte a vos mismo? Vas a dejar de ver la Nota y el Listado.'))return;
+  $('coordIn').value='';guardarRoles([...state.coord,u]);});
+$('coordIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('coordAdd').click();});
+$('coordList').addEventListener('click',e=>{const b=e.target.closest('button[data-u]');if(b)guardarRoles(state.coord.filter(x=>x!==b.dataset.u));});
 </script>
 </body></html>
