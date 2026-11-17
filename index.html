@@ -306,6 +306,20 @@ details.mas[open]>.grid{margin-top:12px}
 #pBuque .field.missing{background:var(--card);border-style:dashed;border-color:#D9B36A}
 #pBuque .field.missing>span::after{content:" · falta";color:#B07A10;font-weight:500}
 #gPlano .field.opt>span::after{content:""}
+.dem li.ddia{display:block;padding:0;border-bottom:1px solid var(--rule)}
+.dem li.ddia:last-child{border-bottom:0}
+.dhead{display:flex;align-items:center;justify-content:space-between;background:#FFF6B8;padding:7px 12px;border-bottom:1px solid var(--rule)}
+.dfecha{font-weight:700;color:#C0141B;font-size:16px}
+.dsub{font:600 18px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;border:1.5px solid var(--ink);border-radius:4px;padding:3px 10px;background:var(--card)}
+.dnone{padding:8px 12px;color:var(--steel);font-size:15px}
+.dem .drow{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:8px 12px;border-bottom:1px dashed var(--rule)}
+.dem .drow input[type=checkbox]{width:22px;height:22px;margin:0;accent-color:var(--harbor);flex:none}
+.dem .drow .ed{grid-template-columns:90px 90px minmax(160px,1fr) auto auto}
+.dem .drow .ed.confecha{grid-template-columns:150px 90px 90px minmax(160px,1fr) auto auto}
+.dem .drow.off .ed input{opacity:.45;text-decoration:line-through}
+.dem .drow .why{margin:0 0 0 34px}
+.dem .dadd{margin:6px 12px 10px;font-size:15px}
+@media (max-width:640px){.dem .drow .ed,.dem .drow .ed.confecha{grid-template-columns:1fr 1fr auto auto}.dem .drow .ed .mo{grid-column:1/-1;order:5}.dem .drow .ed input[type=date]{grid-column:1/-1}}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--harbor-2);outline-offset:2px}
 </style>
@@ -418,7 +432,6 @@ details.mas[open]>.grid{margin-top:12px}
       <p class="lead" id="lDem">Cargá cada corte en que paró todo el buque, con su fecha.</p>
       <div class="demaviso" id="demAviso" hidden></div>
       <div class="tablewrap"><ul class="dem" id="lDemoras"></ul></div>
-      <div class="tools"><button class="btn alt" id="addDem">Agregar demora</button></div>
       <div class="sums">
         <div><small>Efectiva</small><b id="sEfe"></b></div>
         <div><small>Demoras</small><b id="sDem"></b></div>
@@ -1049,7 +1062,7 @@ function iniciar(d,saved){
     $('lManual').textContent=mano?'Estos datos no vienen en el parte. Algunos quedan guardados de la última vez.':'Estos datos no vienen en el Excel de Sergio. Algunos quedan guardados de la última vez.';
     $('hSergio').textContent='Buque';
     $('lSergio').textContent=d.manual?'Se carga una vez, cuando atraca.':mano?'Se leyeron de la letra a mano. Revisalos contra el papel y corregí lo que haga falta.':'Ya están cargados. Revisalos y corregí lo que haga falta.';
-    $('lDem').textContent=d.manual?'Cargá cada corte en que paró todo el buque, con su fecha. Si se pisan dos, se cuentan una sola vez. Destildá las que no se descuentan.':mano?'Las saqué del renglón Demoras del parte. Corregí lo que se haya leído mal y destildá las que no se descuentan.':'Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.';
+    $('lDem').textContent=d.manual?'Como en el cuadro: un bloque por día. Cargá en su día cada corte en que paró todo el buque. Si se pisan dos, se cuentan una sola vez.':mano?'Las saqué del renglón Demoras del parte. Corregí lo que se haya leído mal y destildá las que no se descuentan.':'Las saqué de las observaciones de Sergio. Destildá las que no se descuentan.';
     $('secTurnos').hidden=false;state.nBod=Math.max(7,...d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
     state.demRender=null;
     renderGrupos();renderFields(NOTA,$('gNota'));
@@ -1114,6 +1127,15 @@ function diasDem(efe,dem){
     return {fecha:r.fecha,items:p.items.sort((a,b)=>a.a-b.a).map(i=>({txt:i.txt})),merged:m.map(([a,b])=>({desde:hm(a),hasta:hm(b)})),mins:m.reduce((s,[a,b])=>s+b-a,0)};});
   return dias;
 }
+const fechaHoy=()=>{const n=new Date();return `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`;};
+function diasDemora(){
+  const v=state.v,hoy=fechaHoy(),ini=v.iniEfe_f||v.comenzo_f||v.atraco_f;
+  const fin=v.finalizo_f||(v.estado!=='Terminado'&&ini&&ini<=hoy?hoy:ini);
+  const set=new Set();
+  if(ini&&fin&&fin>=ini){let f=ini;for(let k=0;k<90&&f<=fin;k++){set.add(f);f=serialParts(dateToSerial(f)+1).f;}}
+  state.d.demList.forEach(x=>{if(x.fecha)set.add(x.fecha);});
+  return [...set].sort();
+}
 function porQue(x,efe){
   if(!x.on)return '';
   if(!x.fecha||!x.desde||!x.hasta)return 'Falta '+[!x.fecha&&'la fecha',!x.desde&&'la hora desde',!x.hasta&&'la hora hasta'].filter(Boolean).join(', ')+': así no se descuenta.';
@@ -1157,26 +1179,41 @@ function renderNota(){
     `<tr class="sum first"><td colspan="3">Total</td><td class="n">${fHM(tot)}</td></tr>`:'<tr><td colspan="4">Faltan los horarios en la planilla.</td></tr>');
   $('tEstadia').innerHTML=tabla(c.est,c.tE,'Estadía del buque');
   $('tEfectiva').innerHTML=tabla(c.efe,c.tF,'Efectiva de embarque / operaciones');
-  const ul=$('lDemoras');
-  if(state.demRender!==state.d.demList.length+':'+(state.demVer||0)){state.demRender=state.d.demList.length+':'+(state.demVer||0);
-    ul.innerHTML='';
-    if(!state.d.demList.length)ul.innerHTML='<li>'+(state.d.fuente==='mano'?'No hay demoras en el parte.':'No encontré demoras en el Excel de Sergio.')+'</li>';
-    state.d.demList.forEach((x,i)=>{const li=document.createElement('li');li.classList.toggle('off',!x.on);
+  const ul=$('lDemoras'),dias=diasDemora(),key=state.d.demList.length+':'+(state.demVer||0)+':'+dias.join(',');
+  if(state.demRender!==key){state.demRender=key;ul.innerHTML='';
+    const fila=(x,i)=>{const r=document.createElement('div');r.className='drow';r.dataset.i=i;r.classList.toggle('off',!x.on);
       const cb=document.createElement('input');cb.type='checkbox';cb.checked=x.on;cb.setAttribute('aria-label','Descontar esta demora');
-      cb.addEventListener('change',()=>{x.on=cb.checked;li.classList.toggle('off',!x.on);refresh();});li.appendChild(cb);
-      const ed=document.createElement('div');ed.className='ed';
-      ed.innerHTML=`<input type="date" data-k="fecha" aria-label="Fecha"><input data-k="desde" aria-label="Desde"><input data-k="hasta" aria-label="Hasta"><input class="mo" data-k="motivo" aria-label="Motivo"><span class="d"></span><button type="button" class="x" aria-label="Borrar demora">✕</button>`;
+      cb.addEventListener('change',()=>{x.on=cb.checked;r.classList.toggle('off',!x.on);refresh();});r.appendChild(cb);
+      const ed=document.createElement('div');ed.className='ed'+(x.fecha?'':' confecha');
+      ed.innerHTML=`${x.fecha?'':'<input type="date" data-k="fecha" aria-label="Fecha">'}<input data-k="desde" aria-label="Desde"><input data-k="hasta" aria-label="Hasta"><input class="mo" data-k="motivo" aria-label="Motivo" placeholder="Motivo"><span class="d"></span><button type="button" class="x" aria-label="Borrar demora">✕</button>`;
       const dur=ed.querySelector('.d');
       ed.querySelectorAll('input').forEach(inp=>{const k=inp.dataset.k;inp.value=x[k]||'';
         const upd=()=>{dur.textContent=fHM(demMins(x));inp.classList.toggle('falta',!inp.value&&k!=='motivo');refresh();};
         if(k==='desde'||k==='hasta')horaInput(inp,()=>x[k]||'',val=>{x[k]=val;upd();});
+        else if(k==='fecha')inp.addEventListener('change',()=>{x.fecha=inp.value;state.demVer=(state.demVer||0)+1;refresh();});
         else inp.addEventListener('input',()=>{x[k]=inp.value;upd();});
         inp.classList.toggle('falta',!inp.value&&k!=='motivo');});
       dur.textContent=fHM(demMins(x));
       ed.querySelector('.x').addEventListener('click',()=>{state.d.demList.splice(i,1);state.demVer=(state.demVer||0)+1;refresh();});
-      const w=document.createElement('div');w.className='why';li.appendChild(ed);li.appendChild(w);ul.appendChild(li);});
+      const w=document.createElement('div');w.className='why';r.appendChild(ed);r.appendChild(w);return r;};
+    const bloque=(f,titulo)=>{const li=document.createElement('li');li.className='ddia';li.dataset.f=f;
+      li.innerHTML=`<div class="dhead"><span class="dfecha">${esc(titulo)}</span><span class="dsub" data-sub="${esc(f)}"></span></div>`;
+      const items=state.d.demList.map((x,i)=>[x,i]).filter(([x])=>(x.fecha||'')===f).sort((a,b)=>(toMin(a[0].desde||'99:99')||9999)-(toMin(b[0].desde||'99:99')||9999));
+      if(!items.length&&f){const n=document.createElement('div');n.className='dnone';n.textContent='Sin demoras';li.appendChild(n);}
+      items.forEach(([x,i])=>li.appendChild(fila(x,i)));
+      if(f){const add=document.createElement('button');add.type='button';add.className='link dadd';add.textContent='+ Agregar demora el '+titulo;
+        add.addEventListener('click',()=>{state.d.demList.push({fecha:f,desde:'',hasta:'',motivo:'',on:true});state.demVer=(state.demVer||0)+1;refresh();
+          setTimeout(()=>{const rows=ul.querySelectorAll(`.ddia[data-f="${f}"] .drow`);let tgt=null;rows.forEach(r=>{const i=r.querySelector('input[data-k=desde]');if(i&&!i.value)tgt=i;});if(tgt)tgt.focus();},0);});
+        li.appendChild(add);}
+      ul.appendChild(li);};
+    if(!dias.length&&!state.d.demList.length){const li=document.createElement('li');li.className='ddia';
+      li.innerHTML='<div class="dnone">Los días aparecen solos cuando se carga el atraque o el comienzo de carga, en Horarios.</div>';ul.appendChild(li);}
+    dias.forEach(f=>bloque(f,fdmy(f).slice(0,5)));
+    if(state.d.demList.some(x=>!x.fecha))bloque('','Sin fecha: elegí el día');
   }
-  ul.querySelectorAll(':scope>li').forEach((li,i)=>{const x=state.d.demList[i],w=li.querySelector('.why');if(x&&w){const t=porQue(x,c.efe);w.textContent=t;w.hidden=!t;}});
+  const subs={};(c.dias||[]).forEach(d=>subs[d.fecha]=d.mins);
+  ul.querySelectorAll('[data-sub]').forEach(s=>{const m=subs[s.dataset.sub];s.textContent=s.dataset.sub?fHM(m||0):'';});
+  ul.querySelectorAll('.drow').forEach(r=>{const x=state.d.demList[+r.dataset.i],w=r.querySelector('.why');if(x&&w){const t=porQue(x,c.efe);w.textContent=t;w.hidden=!t;}});
   const av=$('demAviso');if(av){const v=state.v,falta=[!(v.iniEfe_f&&v.iniEfe_h)&&'el inicio de la efectiva (o el atraque)',!(v.finalizo_f&&v.finalizo_h)&&'el fin de carga'].filter(Boolean);
     av.textContent=state.d.demList.length&&falta.length?`Las demoras ya se suman, pero el cuadro y la efectiva neta salen cuando estén ${falta.join(' y ')}.`:'';av.hidden=!av.textContent;}
   $('sEfe').textContent=c.efe?fHM(c.tF):'—';$('sDem').textContent=fHM(c.tD);$('sNeta').textContent=c.efe?fHM(c.neta):'—';
@@ -1755,10 +1792,6 @@ async function cargarParte(files){
 $('apikeyOk').addEventListener('click',()=>{const k=S($('apikeyIn').value);if(!/^sk-ant-/.test(k)){$('apikeyMsg').textContent='La clave tiene que empezar con sk-ant-.';return;}
   store.set('apikey',k);$('apikeyIn').value='';if(pendientes)cargarParte(pendientes);else $('apikey').hidden=true;});
 $('apikeyIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('apikeyOk').click();});
-$('addDem').addEventListener('click',()=>{const dl=state.d.demList,last=dl[dl.length-1];const hoy=new Date(),fHoy=`${hoy.getFullYear()}-${pad(hoy.getMonth()+1)}-${pad(hoy.getDate())}`,v=state.v;
-  const operando=v.estado!=='Terminado'&&!(v.finalizo_f&&v.finalizo_h)&&v.atraco_f&&v.atraco_f<=fHoy;
-  dl.push({fecha:operando?fHoy:(last?last.fecha:(v.iniEfe_f||v.atraco_f||'')),desde:'',hasta:'',motivo:'',on:true});state.demVer=(state.demVer||0)+1;refresh();
-  setTimeout(()=>{const l=$('lDemoras').lastElementChild;const i=l&&l.querySelector('input[data-k=desde]');if(i)i.focus();},0);});
 
 /* ---------- toneladas por turno (modo parte) ---------- */
 function numTons(s){s=S(s).replace(/\s/g,'');if(!s)return 0;
@@ -2068,7 +2101,7 @@ function dibujarCuadroTurno(t){
   const v=state.v,B=state.nBod||7,{acc,total}=acumHasta(t),uni=S(v.unidad).replace(/^u\.?\s*/i,'').toUpperCase();
   const plano=numTons(v.planoTotal);
   const W=760,c1=150,c2=340,X=20,rh=46,k=2;
-  const filasInf=[['EXPORTADOR',S(t.exp)||S(v.exportador)],['GRANO TOTAL POR PLANO',plano?fmtTons(plano):''],['RESTAN POR PLANO',plano?fmtTons(plano-total):''],
+  const filasInf=[['EXPORTADOR',S(t.exp)||S(v.exportador)],['CEREAL',S(v.cereal).toUpperCase()],['GRANO TOTAL POR PLANO',plano?fmtTons(plano):''],['RESTAN POR PLANO',plano?fmtTons(plano-total):''],
     ['CALADO DEL PLANO',S(v.caladoPlano)],['CORTO CARGA',S(v.cortoCarga)],['ETF',S(v.etf)]];
   const nFil=2+B+1,H=X*2+rh*nFil+rh*filasInf.length+rh*2.2;
   const cv=document.createElement('canvas');cv.width=W*k;cv.height=H*k;const x=cv.getContext('2d');x.scale(k,k);
