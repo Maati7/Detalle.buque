@@ -229,7 +229,8 @@ table.xl td{padding:0 3px;border:0;overflow:visible;line-height:1.15;text-align:
 .tcard .th .fe{width:160px;flex:none}.tcard .th .tu{width:100px;flex:none}
 .tcard .tot{margin-left:auto;font-size:14px;color:var(--steel);text-align:right}
 .tcard .tot b{font:600 20px/1 "Barlow Condensed",sans-serif;color:var(--ink)}
-.tcard .bods{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:10px}
+.tcard .bods{display:grid;grid-template-columns:repeat(var(--nb,7),minmax(0,1fr));gap:8px;margin-top:10px}
+@media (max-width:640px){.tcard .bods{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .tcard .bods label{display:flex;flex-direction:column;gap:3px;font-weight:600;font-size:14px}
 .tcard .bods input{text-align:right;font-size:17px}
 .tcard .bods small{color:var(--steel);font-weight:400;font-size:12px;text-align:right}
@@ -1796,7 +1797,7 @@ function renderTurnosEdit(){
   orden.forEach(t=>{const i=d.turnos.indexOf(t),card=document.createElement('div');card.className='tcard';card.dataset.i=i;
     let bods='';for(let b=1;b<=B;b++)bods+=`<label>#${b}<input inputmode="decimal" data-b="${b}" aria-label="Bodega ${b}"><small data-acc="${b}"></small></label>`;
     card.innerHTML=`<div class="th"><input class="fe" type="date" data-k="fecha" aria-label="Fecha del turno"><input class="tu" data-k="turno" placeholder="06 a 12" aria-label="Turno"><div class="tot"></div></div>
-      <div class="bods">${bods}</div>
+      <div class="bods" style="--nb:${B}">${bods}</div>
       <div class="tf"><label>Manos<input inputmode="numeric" data-k="manos"></label><label>Exportador del turno<input data-k="exp" placeholder="${esc(S(state.v.exportador)||'si es otro')}"></label>
         <label class="wide">Observaciones<input data-k="obs" placeholder="opcional"></label></div>
       <div class="tb"><button type="button" class="btn cq">Cuadro del turno</button><button type="button" class="link del">Borrar turno</button></div>`;
