@@ -533,6 +533,17 @@ body:not(.vdatos) #checks{display:none!important}
   .ohint{display:none}
   .obar .btn{flex:1 1 auto}
 }
+.cubg{display:grid;grid-template-columns:repeat(var(--nb,7),minmax(0,1fr));gap:8px}
+.cub{display:flex;flex-direction:column;gap:3px;border:1.5px solid var(--rule);border-radius:12px;padding:7px 8px;background:#fff}
+.cub span{font-weight:700;font-size:15px}
+.cub input{border:0!important;border-bottom:1.5px solid var(--rule)!important;border-radius:0!important;padding:4px 0!important;text-align:right;font:700 20px "Barlow Condensed",sans-serif!important;box-shadow:none!important;background:transparent!important}
+.cub small{text-align:right;font-size:13px;color:var(--steel);min-height:17px}
+.cub small.ok{color:var(--ok);font-weight:700}
+.cubres{font-size:14px;color:var(--steel);margin-top:4px}
+.cubres b{color:var(--ink)}
+.cubman summary{cursor:pointer;color:var(--harbor-2);font-size:14px;font-weight:600}
+.cubman input{margin-top:6px}
+@media (max-width:640px){.cubg{grid-template-columns:repeat(4,minmax(0,1fr))}}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--harbor-2);outline-offset:2px}
 </style>
@@ -1100,6 +1111,7 @@ const PLANO=[
 ];
 const ALL=[...MANUAL,...SERGIO,...NOTA,...LISTADO,...PLANO];
 function ALL_SRC(){return ALL;}
+for(let b=1;b<=9;b++)ALL.push({id:'cub'+b,label:'Cubicaje bodega '+b,opt:1,nohtml:1});
 const state={v:{},d:null,tab:'planilla',first:{}};
 
 function isOpt(f){return f.opt||(f.optIf&&f.optIf());}
@@ -1247,7 +1259,7 @@ function celdas(){
     H14:S(v.otras),I15:num(v.eslora),I16:num(v.manga),I17:num(v.puntal),
     I18:S(v.caladoFin),F18:S(v.caladoIni),F19:'',
     G19:'T.R.B.:  '+milesTxt(v.trb), I19:'TRN:  '+milesTxt(v.trn),
-    F28:state.d.total, F33:S(v.armadores), C34:S(v.factor),
+    F28:state.d.total, F33:S(v.armadores), C34:factorTxt(),
     B35:v.demorasSN==='SI'?'SI ':(v.demorasSN||''), C35:v.demorasSN==='NO'?'':S(v.demoras),
     B37:S(v.habilita), C37:S(v.habilitaTurno)
   };
@@ -2797,7 +2809,7 @@ const SECC=[
   {id:'ident',t:'Identificación',d:'Códigos, bandera y de dónde viene.',f:['codigo','matricula','imo','proc']},
   {id:'horarios',t:'Horarios',d:'También se cargan con un toque desde Operación.',f:['rada','atraco','habilitado','comenzo','finalizo','zarpo']},
   {id:'medidas',t:'Medidas y calados',d:'Del certificado del buque y los calados de entrada y salida.',f:['eslora','manga','puntal','trn','trb','caladoIni','caladoFin']},
-  {id:'plano',t:'Plano',d:'Del plano de carga. El total, el calado, el corto y el ETF salen en el cuadro de cada turno.',f:['planoTotal','caladoPlano','factor','cortoCarga','etf']},
+  {id:'plano',t:'Plano',d:'Del plano de carga. El total, el calado, el corto y el ETF salen en el cuadro de cada turno.',f:['planoTotal','caladoPlano','cortoCarga','etf']},
   {id:'personal',t:'Control y personal',d:'Quiénes intervienen en la operación.',f:['control','coordinador','reviso','estibaje','opip','armadores','otras']},
   {id:'planilla',t:'Planilla',adm:1,d:'Lo que completa administración para la planilla.',f:['nro','expTabla','draft','muelle','pip','pb','habilita','habilitaTurno','observaciones','demorasSN','demoras']},
 ];
@@ -2827,6 +2839,30 @@ $('dNext').addEventListener('click',()=>{const s=$('dNext').dataset.s;if(!s){if(
 function irAlDato(id){state.dSec=(secDe(id)||{}).id||state.dSec;setVista('datos');renderDatos();renderSec(true);
   setTimeout(()=>{const b=$('dFields').querySelector(`.df[data-id="${id}"]`);if(!b)return;b.scrollIntoView({behavior:'smooth',block:'center'});const i=b.querySelector('input');if(i)i.focus({preventScroll:true});},120);}
 function setV(id,val){state.v[id]=val;refresh();}
+/* ---- factor de estiba: cubicaje de cada bodega / toneladas que cargó ---- */
+const tonsPorBodega=()=>{const t={};(state.d?state.d.turnos:[]).forEach(x=>x.tons.forEach(y=>t[y.bodega]=(t[y.bodega]||0)+y.tons));return t;};
+const fe2=n=>n.toFixed(2).replace('.',',');
+function factores(){const t=tonsPorBodega(),B=Math.max(7,state.nBod||7),o=[];
+  for(let b=1;b<=B;b++){const c=numTons(state.v['cub'+b]);if(c&&t[b])o.push({b,c,t:t[b],fe:c/t[b]});}return o;}
+function factorTxt(){const l=factores();return l.length?l.map(x=>`#${x.b}: ${fe2(x.fe)}`).join(' · '):S(state.v.factor);}
+function bloqueCubicaje(host){
+  const B=Math.max(7,state.nBod||7),box=document.createElement('div');box.className='df w';box.dataset.id='cubicaje';
+  box.innerHTML=`<span class="l">Factor de estiba <small>· cargá el cubicaje de cada bodega (del plano) y se calcula solo: cubicaje ÷ toneladas cargadas</small></span>
+    <div class="cubg" style="--nb:${B}"></div>
+    <div class="cubres"></div>
+    <details class="cubman"><summary>No tengo el cubicaje: escribirlo a mano</summary><input aria-label="Factor de estiba a mano" placeholder="ej. #1: 151,36 · #2: 48,30"></details>`;
+  const g=box.querySelector('.cubg'),res=box.querySelector('.cubres'),man=box.querySelector('.cubman input');
+  for(let b=1;b<=B;b++){const c=document.createElement('label');c.className='cub';
+    c.innerHTML=`<span>#${b}</span><input inputmode="decimal" aria-label="Cubicaje bodega ${b}" placeholder="—"><small data-fe="${b}"></small>`;
+    const i=c.querySelector('input');i.value=S(state.v['cub'+b]);i.addEventListener('input',()=>{state.v['cub'+b]=S(i.value);pinta();refresh();});g.appendChild(c);}
+  man.value=S(state.v.factor);man.addEventListener('input',()=>{state.v.factor=man.value;refresh();pinta();});
+  const pinta=()=>{const t=tonsPorBodega(),l=factores();
+    g.querySelectorAll('[data-fe]').forEach(s=>{const b=+s.dataset.fe,c=numTons(state.v['cub'+b]);
+      s.textContent=!c?'':!t[b]?'sin carga':'FE '+fe2(c/t[b]);s.classList.toggle('ok',!!(c&&t[b]));});
+    res.innerHTML=l.length?`En la planilla sale: <b>${esc(factorTxt())}</b>`:(S(state.v.factor)?`En la planilla sale: <b>${esc(S(state.v.factor))}</b>`:'Todavía no hay cubicajes cargados.');
+    box.querySelector('.cubman').hidden=!!l.length&&!S(state.v.factor);};
+  pinta();host.appendChild(box);
+}
 function renderSec(forzar){
   if(!state.d)return;const host=$('dFields');
   if(!forzar&&host.contains(document.activeElement)&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
@@ -2869,6 +2905,7 @@ function renderSec(forzar){
         box.appendChild(c);}
     }
     host.appendChild(box);}
+  if(s.id==='plano')bloqueCubicaje(host);
   renderDatos();
 }
 
