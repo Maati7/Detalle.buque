@@ -2797,9 +2797,9 @@ const SECC=[
   {id:'ident',t:'Identificación',d:'Códigos, bandera y de dónde viene.',f:['codigo','matricula','imo','proc']},
   {id:'horarios',t:'Horarios',d:'También se cargan con un toque desde Operación.',f:['rada','atraco','habilitado','comenzo','finalizo','zarpo']},
   {id:'medidas',t:'Medidas y calados',d:'Del certificado del buque y los calados de entrada y salida.',f:['eslora','manga','puntal','trn','trb','caladoIni','caladoFin']},
-  {id:'plano',t:'Plano',d:'Sale en el cuadro de cada turno.',f:['planoTotal','caladoPlano','cortoCarga','etf']},
+  {id:'plano',t:'Plano',d:'Del plano de carga. El total, el calado, el corto y el ETF salen en el cuadro de cada turno.',f:['planoTotal','caladoPlano','factor','cortoCarga','etf']},
   {id:'personal',t:'Control y personal',d:'Quiénes intervienen en la operación.',f:['control','coordinador','reviso','estibaje','opip','armadores','otras']},
-  {id:'planilla',t:'Planilla',adm:1,d:'Lo que completa administración para la planilla.',f:['nro','expTabla','draft','muelle','pip','pb','habilita','habilitaTurno','observaciones','demorasSN','demoras','factor']},
+  {id:'planilla',t:'Planilla',adm:1,d:'Lo que completa administración para la planilla.',f:['nro','expTabla','draft','muelle','pip','pb','habilita','habilitaTurno','observaciones','demorasSN','demoras']},
 ];
 const fdef=id=>ALL.find(x=>x.id===id);
 const esCoordNow=()=>typeof esCoord==='function'&&auth.currentUser&&esCoord();
