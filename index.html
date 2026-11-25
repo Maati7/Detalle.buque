@@ -321,11 +321,95 @@ details.mas[open]>.grid{margin-top:12px}
 .dem .dadd{margin:6px 12px 10px;font-size:15px}
 @media (max-width:640px){.dem .drow .ed,.dem .drow .ed.confecha{grid-template-columns:1fr 1fr auto auto}.dem .drow .ed .mo{grid-column:1/-1;order:5}.dem .drow .ed input[type=date]{grid-column:1/-1}}
 /* ---- vista de operación ---- */
-body.vops .wrap{max-width:1200px}
-body.vops .toast{bottom:24px}
-body.vops .tabs,body.vops #tabPlanilla,body.vops #tabNota,body.vops #tabListado,body.vops #bar,body.vops #sug,body.vops #checks,body.vops #completar{display:none!important}
-body:not(.vops) #ops{display:none}
-body.vops #verOps{display:none}
+body.vbuque .wrap{max-width:1200px}
+body.vbuque .toast{bottom:24px}
+body.vbuque .tabs,body.vbuque #tabPlanilla,body.vbuque #tabNota,body.vbuque #bar,body.vbuque #sug,body.vbuque #completar{display:none!important}
+body.vbuque #docLisBox #tabListado{display:block!important}
+body:not(.vops) #ops,body:not(.vdatos) #datosV,body:not(.vdocs) #docsV{display:none}
+body:not(.vdatos) #checks{display:none!important}
+.vnav{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:5px;margin-top:14px}
+.vnav.dos{grid-template-columns:repeat(2,1fr)}
+.vnav button{display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:11px 8px;font:600 17px Barlow,sans-serif;color:var(--ink);background:transparent;cursor:pointer}
+.vnav button:hover{background:var(--paper)}
+.vnav button[aria-current="page"]{background:var(--harbor);color:#fff}
+.vnav em{font-style:normal;font-size:13px;font-weight:700;border-radius:10px;padding:1px 8px;background:var(--amber-bg);color:#7A4E00}
+.vnav button[aria-current="page"] em{background:rgba(255,255,255,.2);color:#fff}
+@media (max-width:640px){.vnav button{flex-direction:column;gap:2px;font-size:14px;padding:8px 4px}.vnav button span{font-size:18px}}
+.oexp{display:flex;gap:8px;flex-wrap:wrap}
+.oexp button{border:2px solid var(--rule);border-radius:12px;padding:8px 18px;font:700 17px Barlow,sans-serif;background:#fff;color:var(--ink);cursor:pointer}
+.oexp button.on{border-color:var(--harbor);background:#EEF5FB;color:var(--harbor)}
+.obyexp{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:14px;color:var(--steel)}
+.obyexp b{color:var(--ink)}
+.dgrid2{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;margin-top:16px;align-items:start}
+.dsecs{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:4px 0;position:sticky;top:12px}
+.dsecs button{display:flex;align-items:center;gap:10px;width:100%;border:0;border-bottom:1px solid var(--rule);background:transparent;padding:12px 16px;font:600 16px Barlow,sans-serif;color:var(--ink);cursor:pointer;text-align:left;border-left:4px solid transparent}
+.dsecs button:last-child{border-bottom:0}
+.dsecs button:hover span{color:var(--harbor-2)}
+.dsecs button[aria-current="true"]{background:#EEF5FB;border-left-color:var(--harbor)}
+.dsecs button[aria-current="true"] span{color:var(--harbor)}
+.dsecs i{width:12px;height:12px;border-radius:50%;flex:none;border:2px solid var(--rule)}
+.dsecs i.ok{background:var(--ok);border-color:var(--ok)}.dsecs i.md{background:var(--amber);border-color:var(--amber)}
+.dsecs span{flex:1}
+.dsecs em{font-style:normal;font-size:13px;font-weight:600;color:var(--steel)}
+.dsecs em.ok{color:var(--ok)}
+.dsecs .adm{font-size:12px;font-weight:700;color:var(--steel);text-transform:uppercase;letter-spacing:.04em;padding:10px 16px 2px}
+.dpanel{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:16px 22px 20px}
+.dph{display:flex;align-items:baseline;gap:10px}
+.dph h3{margin:0;font:700 26px/1 "Barlow Condensed",sans-serif;margin-right:auto}
+.dsave{color:var(--ok);font-weight:600;font-size:14px}
+.dsubt{color:var(--steel);font-size:14px;margin:4px 0 14px}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px}
+.df{display:flex;flex-direction:column;gap:6px;min-width:0}
+.df.w{grid-column:1/-1}
+.df>label,.df>.l{font-size:13px;color:var(--steel);font-weight:600}
+.df>label small,.df>.l small{font-weight:400}
+.df .hint2{font-size:13px;color:var(--steel)}
+.df input,.df textarea{font:500 18px Barlow,sans-serif;color:var(--ink);border:1.5px solid var(--rule);border-radius:10px;padding:10px 12px;background:#fff;min-width:0;width:100%}
+.df input:focus{outline:none;border-color:var(--harbor-2);box-shadow:0 0 0 3px rgba(44,106,160,.18)}
+.df.miss input:not(:focus){border-style:dashed;border-color:#D9B36A;background:#FFFCF4}
+.df.miss .dseg button{border-style:dashed;border-color:#D9B36A}
+.df .dpair{display:grid;grid-template-columns:1.4fr 1fr auto;gap:8px}
+.df .dpair .btn{padding:8px 14px;font-size:15px}
+.dseg{display:flex;gap:8px;flex-wrap:wrap}
+.dseg button{flex:1 1 90px;border:1.5px solid var(--rule);border-radius:10px;padding:10px 12px;font:700 16px Barlow,sans-serif;background:#fff;color:var(--ink);cursor:pointer}
+.dseg button.on{background:var(--harbor);border-color:var(--harbor);color:#fff}
+.dchips{display:flex;flex-wrap:wrap;gap:8px}
+.dchips button{border:1.5px solid var(--rule);border-radius:20px;padding:6px 13px;font:600 15px Barlow,sans-serif;background:#fff;color:var(--ink);cursor:pointer}
+.dchips button.on{background:var(--harbor);border-color:var(--harbor);color:#fff}
+.dchips button.tag{background:#EEF5FB;border-color:var(--harbor-2);color:var(--harbor)}
+.dchips input{flex:1 1 160px;max-width:220px;font-size:15px;padding:6px 12px;border-radius:20px;border-style:dashed}
+.dfoot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid var(--rule)}
+.docs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px;align-items:start}
+#docNotaF .field small{display:none}
+#docNotaF .field[data-id=firma],#docNotaF .field[data-id=cc]{grid-column:1/-1}
+.doc{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.doc .dt{display:flex;align-items:center;gap:12px}
+.doc .ic{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font:700 14px Barlow,sans-serif;color:#fff;flex:none}
+.doc .ic.xls{background:#1F7A45}.doc .ic.pdf{background:#B3261E}.doc .ic.txt{background:#5E6E7C}
+.doc h4{margin:0;font:700 22px/1 "Barlow Condensed",sans-serif}
+.doc .dt small{display:block;color:var(--steel);font-size:13px}
+.doc .st{margin-left:auto;font-size:13px;font-weight:700;border-radius:10px;padding:2px 10px;white-space:nowrap}
+.doc .st.ok{background:var(--ok-bg);color:var(--ok)}.doc .st.no{background:var(--amber-bg);color:#7A4E00}
+.dmiss{display:flex;flex-wrap:wrap;gap:6px}
+.dmiss:empty{display:none}
+.dmiss button,.dmiss span{font:500 14px Barlow,sans-serif;border:1px dashed #D9B36A;background:#FFFCF4;border-radius:14px;padding:2px 10px;color:#7A4E00}
+.dmiss button{cursor:pointer}.dmiss button:hover{border-style:solid}
+.doc .db{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}
+.doc .db .btn{padding:9px 16px;font-size:15px}
+#docNotaF .grid{grid-template-columns:1fr 1fr}
+.doclis{margin-top:16px;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:6px 18px 16px}
+.dimport{margin-top:14px;text-align:right}
+@media (max-width:900px){
+  .dgrid2{grid-template-columns:minmax(0,1fr)}
+  .dsecs{position:static;display:flex;overflow-x:auto;padding:4px;gap:4px;scrollbar-width:none}
+  .dsecs::-webkit-scrollbar{display:none}
+  .dsecs button{flex:none;width:auto;border:1px solid var(--rule);border-radius:20px;padding:7px 12px;font-size:14px}
+  .dsecs button[aria-current="true"]{border-color:var(--harbor)}
+  .dsecs em,.dsecs .adm{display:none}
+  .dg{grid-template-columns:minmax(0,1fr)}
+  .docs{grid-template-columns:minmax(0,1fr)}
+  #docNotaF .grid{grid-template-columns:minmax(0,1fr)}
+}
 .stats{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
 .opsgrid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;margin-top:16px;align-items:start}
 .opsL{display:flex;flex-direction:column;gap:10px}
@@ -504,7 +588,6 @@ body.vops #verOps{display:none}
       <div class="shiptop">
         <select id="estado" aria-label="Estado del buque"><option>Operando</option><option>Terminado</option></select>
         <button class="link" id="completar">Completar desde archivo</button>
-        <button class="link" id="verOps">← Volver a operación</button>
         <span class="sync" id="sync" role="status"></span>
       </div>
       <div class="name" id="shipName"></div>
@@ -512,10 +595,15 @@ body.vops #verOps{display:none}
       <div class="stats">
         <div><small>Cereal</small><b id="stCereal"></b></div>
         <div><small>Total a bordo</small><b id="stTotal"></b></div>
-        <div><small>Exportador</small><b id="stExp"></b></div>
+        <div><small id="stExpL">Exportador</small><b id="stExp"></b></div>
         <div id="stRestanBox" hidden><small>Restan por plano</small><b id="stRestan"></b></div>
       </div>
     </div>
+    <nav class="vnav" id="vnav" aria-label="Secciones del buque">
+      <button type="button" data-v="ops"><span>⚓</span>Operación</button>
+      <button type="button" data-v="datos"><span>📋</span>Datos del buque<em id="vnavFalta" hidden></em></button>
+      <button type="button" data-v="docs" id="vnavDocs"><span>📄</span>Planilla y documentos</button>
+    </nav>
     <div class="tabs" role="tablist">
       <button role="tab" id="tbPlanilla" aria-selected="true">Planilla<span class="cnt" id="cntPlanilla"></span></button>
       <button role="tab" id="tbNota" aria-selected="false">Nota ENAPRO<span class="cnt" id="cntNota"></span></button>
@@ -532,7 +620,7 @@ body.vops #verOps{display:none}
           <button class="onext" id="opNext"><span class="oi" id="opNextI">⚓</span><span><b id="opNextT"></b><small id="opNextS"></small></span></button>
           <div class="oacts"><button class="oact" id="opTurnoBtn"><span>⚖️</span>Cargar turno</button><button class="oact red" id="opDemBtn"><span>⏸</span>Demora</button></div>
           <div class="otl" id="opTl"></div>
-          <div class="omini"><button class="link" id="opHist">Historial de cambios</button><button class="link" id="opDatos">Todos los datos ›</button></div>
+          <div class="omini"><button class="link" id="opHist">Historial de cambios</button><button class="link" id="opDatos">Datos del buque ›</button></div>
         </div>
         <div class="opsR" id="opsR">
           <div class="odim" id="opDim"></div>
@@ -541,6 +629,7 @@ body.vops #verOps{display:none}
               <div class="oph"><h3>Cargar turno</h3><button type="button" class="mx oclose" aria-label="Cerrar">✕</button></div>
               <div class="otop"><input type="date" id="otFecha" aria-label="Fecha del turno"><div class="oseg" id="otSeg" role="group" aria-label="Turno"></div></div>
               <p class="onote" id="otEx" hidden></p>
+              <div id="otExpBox" hidden><div class="olab">¿De quién es la carga de este turno?</div><div class="oexp" id="otExp" role="group" aria-label="Exportador del turno"></div></div>
               <div class="olab">Toneladas por bodega · tocá el número de bodega para marcarla como operando o parada</div>
               <div class="obods" id="otBods"></div>
               <div class="osums">
@@ -549,6 +638,7 @@ body.vops #verOps{display:none}
                 <div><small>Grano por plano</small><input id="otPlano" inputmode="decimal" placeholder="cargar" aria-label="Grano total por plano"></div>
                 <div><small>Restan por plano</small><b id="otRestan">—</b></div>
               </div>
+              <div class="obyexp" id="otByExp" hidden></div>
               <div class="orow2"><label>Observaciones<input id="otObs" placeholder="opcional"></label><label>Manos<input id="otManos" inputmode="numeric" placeholder="—"></label></div>
               <div class="obar"><button class="btn" id="otSave">Guardar turno</button><button class="btn alt" id="otSaveCq">Guardar y ver el cuadro</button><span class="ohint">Enter pasa a la bodega siguiente</span></div>
             </div>
@@ -658,6 +748,39 @@ body.vops #verOps{display:none}
     </section>
     <div id="lsCards"></div>
     </div>
+    <section id="datosV">
+      <div class="dgrid2">
+        <div class="dsecs" id="dSecs"></div>
+        <div class="dpanel" id="dPanel">
+          <div class="dph"><h3 id="dTit"></h3><small class="dsave">✓ Se guarda solo</small></div>
+          <p class="dsubt" id="dSub"></p>
+          <div class="dg" id="dFields"></div>
+          <div class="dfoot"><button class="btn" id="dNext"></button><span class="ohint">Los vacíos con borde punteado son los que faltan para la planilla.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="docsV">
+      <div class="docs">
+        <div class="doc" id="docPla"><div class="dt"><span class="ic xls">XLS</span><div><h4>Planilla del buque</h4><small>Excel · la de siempre</small></div><span class="st" id="docPlaSt"></span></div>
+          <div class="dmiss" id="docPlaMiss"></div>
+          <div class="db"><button class="btn alt" id="docPlaVer">Vista previa</button><button class="btn" id="docPlaDl">Descargar</button></div></div>
+        <div class="doc" id="docNota"><div class="dt"><span class="ic pdf">PDF</span><div><h4>Nota ENAPRO</h4><small>PDF · con firma</small></div><span class="st" id="docNotaSt"></span></div>
+          <div id="docNotaF"></div>
+          <div class="dmiss" id="docNotaMiss"></div>
+          <div class="db"><button class="btn alt" id="docNotaVer">Vista previa</button><button class="btn" id="docNotaDl">Descargar</button></div></div>
+        <div class="doc" id="docCua"><div class="dt"><span class="ic xls">XLS</span><div><h4>Cuadro de estadía</h4><small>Excel · demoras por día</small></div><span class="st" id="docCuaSt"></span></div>
+          <div class="ohint" id="docCuaRes"></div>
+          <div class="dmiss" id="docCuaMiss"></div>
+          <div class="db"><button class="btn alt" id="docCuaVer">Vista previa</button><button class="btn" id="docCuaDl">Descargar</button></div></div>
+        <div class="doc" id="docLis"><div class="dt"><span class="ic txt">TXT</span><div><h4>Listado</h4><small>Filas para copiar al Excel del listado</small></div><span class="st ok">Listo</span></div>
+          <div class="ohint">Una fila por hoja, lista para pegar.</div>
+          <div class="db"><button class="btn" id="docLisBtn" aria-expanded="false">Abrir listado</button></div></div>
+      </div>
+      <div class="doclis" id="docLisBox" hidden></div>
+      <div class="dimport"><button class="link" id="docImport">Completar datos desde el Excel de Sergio o el parte ›</button></div>
+    </section>
+
     <details class="hist" id="hist"><summary>Historial de cambios<small>quién cambió qué</small></summary><ul class="hlist" id="hList"></ul></details>
     <div class="borrar"><button class="link" id="borrar">Borrar este buque</button></div>
   </main>
@@ -670,7 +793,7 @@ body.vops #verOps{display:none}
         <div class="nbf"><label for="nbBuque">Buque</label><input id="nbBuque" placeholder="ej. AP DUBROVNIK"></div>
         <div class="nbf"><span>Unidad</span><div class="nbuni" id="nbUni"><button type="button" data-u="VI">U VI</button><button type="button" data-u="VII">U VII</button></div></div>
         <div class="nbf"><label for="nbCereal">Cereal</label><input id="nbCereal" placeholder="Escribí o elegí…"><div class="nbsug" id="nbCerS"></div></div>
-        <div class="nbf"><label for="nbExp">Exportador</label><input id="nbExp" placeholder="Escribí o elegí…"><div class="nbsug" id="nbExpS"></div></div>
+        <div class="nbf"><label for="nbExp">Exportador</label><input id="nbExp" placeholder="Si son dos: UAA / BUNGE"><div class="nbsug" id="nbExpS"></div></div>
       </div>
       <div class="err" id="nbErr" hidden></div>
       <div class="nbbar"><button class="btn" type="submit">Crear y empezar</button><button class="btn alt" type="button" id="nbCancel">Cancelar</button></div>
@@ -2109,7 +2232,7 @@ function renderLista(){
 }
 $('buscar').addEventListener('input',renderLista);
 document.addEventListener('click',e=>{const b=e.target.closest('.bcard');if(b)abrir(b.dataset.id);});
-function mostrarHome(){document.body.classList.remove('vops');opCerrar();$('main').hidden=true;$('bar').hidden=true;$('otro').hidden=true;$('drop').hidden=true;$('home').hidden=false;$('err').hidden=true;renderLista();window.scrollTo(0,0);}
+function mostrarHome(){['vbuque','vops','vdatos','vdocs'].forEach(c=>document.body.classList.remove(c));opCerrar();$('main').hidden=true;$('bar').hidden=true;$('otro').hidden=true;$('drop').hidden=true;$('home').hidden=false;$('err').hidden=true;renderLista();window.scrollTo(0,0);}
 $('nuevo').addEventListener('click',()=>{$('err').hidden=true;$('apikey').hidden=true;abrirNuevo();});
 $('importar').addEventListener('click',()=>{state.merge=false;$('file').click();});
 $('completar').addEventListener('click',()=>{state.merge=true;$('file').click();});
@@ -2181,7 +2304,7 @@ function redibujar(){
   const y=window.scrollY;
   renderGrupos();renderFields(NOTA,$('gNota'));renderFields(LISTADO,$('gListado'));bindIni();
   state.nBod=Math.max(state.nBod||7,...state.d.turnos.flatMap(t=>t.tons.map(x=>x.bodega)));$('nBod').value=state.nBod;renderTurnosEdit();
-  state.demRender=null;refresh();window.scrollTo(0,y);
+  state.demRender=null;refresh();if(state.vista==='datos')renderSec();window.scrollTo(0,y);
 }
 function cerrarBuque(){if(state.unsubDoc){state.unsubDoc();state.unsubDoc=null;}if(state.unsubHist){state.unsubHist();state.unsubHist=null;}$('hist').open=false;$('hList').innerHTML='';state.id=null;state.synced=null;state.pend=null;setSync('');}
 async function volver(){await guardar();await volcarHist();cerrarBuque();mostrarHome();}
@@ -2226,9 +2349,10 @@ function escucharRoles(){
 }
 function aplicarRol(){
   const c=esCoord();
-  $('tbNota').hidden=$('tbListado').hidden=c;document.querySelector('.tabs').classList.toggle('solo',c);
+  $('tbNota').hidden=$('tbListado').hidden=c;$('vnavDocs').hidden=c;$('vnav').classList.toggle('dos',c);if(c&&state.vista==='docs'&&!$('main').hidden)setVista('ops');document.querySelector('.tabs').classList.toggle('solo',c);
   $('coordBtn').hidden=c;if(c)$('coordBox').hidden=true;
   if(c&&state.tab!=='planilla'&&!$('main').hidden)setTab('planilla');
+  if(!$('main').hidden&&typeof renderDatos==='function'){state.dSec=null;renderDatos();renderSec(true);}
   if(c)state.tab='planilla';
   const ul=$('coordList');
   ul.innerHTML=state.coord.length?state.coord.map(u=>`<span>${esc(u)}<button type="button" data-u="${esc(u)}" aria-label="Quitar ${esc(u)}">✕</button></span>`).join(''):'<em>Todavía no hay usuarios de coordinación.</em>';
@@ -2386,18 +2510,26 @@ const TURNOS4=['00 a 06','06 a 12','12 a 18','18 a 24'];
 const MOTIVOS=[['Lluvia','no operó por lluvia'],['Espera de carga','espera de carga'],['Inspección control','inspección previa control'],['Armado','armado de trabajo y espera de carga'],
   ['Corte de luz','no operó por corte de luz'],['Orden del control','no operó por orden del control'],['Lectura y cálculo','lectura y cálculo'],['Otro…','']];
 let op={panel:'turno',open:false,t:null,edit:null,mot:null};
+const expsBuque=()=>[...new Set(S(state.v.exportador).toUpperCase().split(/\s*[\/,;+]\s*|\s+Y\s+/).map(S).filter(Boolean))];
+const setExportadores=l=>{state.v.exportador=[...new Set(l.map(x=>S(x).toUpperCase()).filter(Boolean))].join(' / ');};
 const ahoraFH=()=>{const n=new Date();return {f:fechaHoy(),h:pad(n.getHours())+':'+pad(n.getMinutes())};};
 const turnoNorm=s=>{const m=/(\d{1,2})\D+(\d{1,2})/.exec(S(s));return m?`${pad(+m[1])} a ${pad(+m[2])}`:S(s);};
 const fdm=f=>f?fdmy(f).slice(0,5):'';
 const addDia=(f,n)=>serialParts(dateToSerial(f)+n).f;
 function opReset(){op={panel:op.panel||'turno',open:false,t:null,edit:null,mot:null};$('odOtro').hidden=true;$('odErr').hidden=true;}
 function setVista(v,inicial){
-  v=v==='datos'?'datos':'ops';store.set('vista',v);
-  document.body.classList.toggle('vops',v==='ops');
-  if(!inicial){if(v==='datos'){opCerrar();redibujar();}else refresh();window.scrollTo(0,0);}
+  if(!['ops','datos','docs'].includes(v))v='ops';
+  if(v==='docs'&&typeof esCoord==='function'&&auth.currentUser&&esCoord())v='ops';
+  store.set('vista',v);state.vista=v;
+  const bd=document.body.classList;bd.add('vbuque');['ops','datos','docs'].forEach(k=>bd.toggle('v'+k,k===v));
+  $('vnav').querySelectorAll('button').forEach(x=>{if(x.dataset.v===v)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});
+  if(v!=='ops')opCerrar();
+  if(v==='docs')$('docNotaF').appendChild($('gNota')),$('docLisBox').appendChild($('tabListado'));
+  if(v==='datos'&&state.d)renderSec(true);
+  if(!inicial){refresh();window.scrollTo(0,0);}
 }
+$('vnav').addEventListener('click',e=>{const b=e.target.closest('button[data-v]');if(b)setVista(b.dataset.v);});
 $('opDatos').addEventListener('click',()=>setVista('datos'));
-$('verOps').addEventListener('click',()=>setVista('ops'));
 $('opHist').addEventListener('click',()=>{$('hist').open=true;$('hist').scrollIntoView({behavior:'smooth',block:'start'});});
 
 /* ---- toast con deshacer ---- */
@@ -2498,7 +2630,8 @@ function cargarBorrador(f,t){
   else{const prev=turnosOrden().filter(x=>claveT(x.fecha,x.turno)<claveT(f,t)).pop()||turnosOrden().slice(-1)[0];
     on=new Set(prev&&prev.tons.length?prev.tons.map(x=>x.bodega):Array.from({length:B},(_,i)=>i+1));}
   const last=turnosOrden().slice(-1)[0];
-  op.t={f,t:turnoNorm(t),vals,on,obs:ex?S(ex.obs):'',manos:ex&&ex.manos!=null?String(ex.manos):(last&&last.manos!=null?String(last.manos):''),exp:ex?S(ex.exp):(last?S(last.exp):''),ex:!!ex};
+  const exps=expsBuque();let exp=ex?S(ex.exp):(last?S(last.exp):'');if(exps.length>1&&!exps.includes(exp.toUpperCase()))exp=exps[0];
+  op.t={f,t:turnoNorm(t),vals,on,obs:ex?S(ex.obs):'',manos:ex&&ex.manos!=null?String(ex.manos):(last&&last.manos!=null?String(last.manos):''),exp,ex:!!ex};
   pintarTurno();
 }
 function pintarTurno(){
@@ -2506,6 +2639,7 @@ function pintarTurno(){
   $('otFecha').value=d.f;
   $('otSeg').innerHTML=TURNOS4.map(t=>`<button type="button" data-t="${t}" class="${t===d.t?'on':''}" aria-pressed="${t===d.t}">${t}${buscarTurno(d.f,t)?'<span class="dot" title="Ya cargado"></span>':''}</button>`).join('');
   const ex=$('otEx');ex.hidden=!d.ex;ex.className='onote ya';ex.textContent=d.ex?'Este turno ya estaba cargado: lo que cambies lo corrige.':'';
+  pintarExp();
   const host=$('otBods');host.innerHTML='';host.style.setProperty('--nb',B);host.classList.toggle('pocas',d.on.size&&d.on.size<=3);
   for(let b=1;b<=B;b++){const on=d.on.has(b),c=document.createElement('div');c.className='obod '+(on?'on':'off');
     c.innerHTML=`<button type="button" aria-pressed="${on}" aria-label="Bodega ${b}: ${on?'operando':'parada'}">#${b}<u>${on?'operando':'parada'}</u></button><input inputmode="decimal" aria-label="Toneladas bodega ${b}" ${on?'':'disabled'}><small data-ac="${b}"></small>`;
@@ -2528,7 +2662,15 @@ function sumasTurno(){
   $('otTot').textContent=fmtTons(tot)+' t';$('otBordo').textContent=fmtTons(bordo)+' t';
   if(document.activeElement!==$('otPlano'))$('otPlano').value=S(state.v.planoTotal);
   const plano=numTons(state.v.planoTotal);$('otRestan').textContent=plano?fmtTons(plano-bordo)+' t':'—';
+  const exps=expsBuque();$('otByExp').hidden=exps.length<2;
+  if(exps.length>1){const por={};exps.forEach(x=>por[x]=0);
+    for(const t of state.d.turnos){if(claveT(t.fecha,t.turno)===k)continue;const e=S(t.exp).toUpperCase()||exps[0];por[e]=(por[e]||0)+t.total;}
+    const e=S(d.exp).toUpperCase()||exps[0];por[e]=(por[e]||0)+tot;
+    $('otByExp').innerHTML='<span>A bordo por exportador:</span>'+Object.entries(por).map(([x,n])=>`<span>${esc(x)} <b>${fmtTons(n)} t</b></span>`).join('');}
 }
+function pintarExp(){const exps=expsBuque(),d=op.t;$('otExpBox').hidden=exps.length<2;if(exps.length<2)return;
+  $('otExp').innerHTML=exps.map(x=>`<button type="button" class="${x===S(d.exp).toUpperCase()?'on':''}" aria-pressed="${x===S(d.exp).toUpperCase()}">${esc(x)}</button>`).join('');}
+$('otExp').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!op.t)return;op.t.exp=b.textContent;pintarExp();sumasTurno();});
 $('otSeg').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(b)cargarBorrador(op.t.f,b.dataset.t);});
 $('otFecha').addEventListener('change',e=>{if(e.target.value)cargarBorrador(e.target.value,op.t.t);});
 $('otObs').addEventListener('input',e=>{op.t.obs=e.target.value;});
@@ -2540,7 +2682,7 @@ function guardarTurno(verCuadro){
   if(!tons.length&&!t){toast('Cargá las toneladas de al menos una bodega.');return;}
   const antes=JSON.parse(JSON.stringify(state.d.turnos));
   if(!t){t={fecha:d.f,turno:d.t,tons:[],total:0,manos:null,exp:d.exp,obs:''};state.d.turnos.push(t);}
-  t.turno=d.t;t.tons=tons;t.obs=S(d.obs);const m=parseInt(d.manos);t.manos=isNaN(m)?null:m;
+  t.turno=d.t;t.tons=tons;t.obs=S(d.obs);if(expsBuque().length>1)t.exp=S(d.exp).toUpperCase();const m=parseInt(d.manos);t.manos=isNaN(m)?null:m;
   recalcTurnos();renderTurnosEdit();refresh();guardar();
   d.ex=true;pintarTurno();
   toastUndo(`Turno ${d.t} del ${fdm(d.f)} guardado: ${fmtTons(t.total)} t`,()=>{state.d.turnos=antes;recalcTurnos();renderTurnosEdit();refresh();guardar();cargarBorrador(d.f,d.t);});
@@ -2607,6 +2749,7 @@ function renderOps(){
   if(!state.d||$('main').hidden)return;
   const v=state.v,plano=numTons(v.planoTotal);
   $('stRestanBox').hidden=!plano;if(plano)$('stRestan').textContent=fmtTons(plano-(state.d.total||0))+' t';
+  renderDatos();renderDocs();
   if(!document.body.classList.contains('vops'))return;
   renderRun();
   const nx=proximoPaso(),bt=$('opNext');bt.classList.toggle('done',nx==='listo');
@@ -2629,10 +2772,12 @@ function abrirNuevo(){
   nbU=store.get('nbUni','VII');$('nbForm').reset();$('nbErr').hidden=true;
   $('nbUni').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.u===nbU));
   const sug=(host,inp,list)=>{host.innerHTML=list.map(x=>`<button type="button">${esc(x)}</button>`).join('');
-    host.onclick=e=>{const b=e.target.closest('button');if(b){inp.value=b.textContent;inp.focus();}};};
+    host.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+      if(inp.id==='nbExp'){const l=S(inp.value).split(/\s*\/\s*/).filter(Boolean);if(!l.includes(b.textContent))l.push(b.textContent);inp.value=l.join(' / ');}else inp.value=b.textContent;inp.focus();};};
   sug($('nbCerS'),$('nbCereal'),sugerencias('cereal',CEREALES));sug($('nbExpS'),$('nbExp'),sugerencias('exportador',EXPORTADORES));
   $('nbModal').hidden=false;document.body.style.overflow='hidden';setTimeout(()=>$('nbBuque').focus(),30);
 }
+const exportadoresTxt=s=>[...new Set(S(s).toUpperCase().split(/\s*[\/,;+]\s*|\s+Y\s+/).map(S).filter(Boolean))].join(' / ');
 function cerrarNuevo(){$('nbModal').hidden=true;document.body.style.overflow='';}
 $('nbUni').addEventListener('click',e=>{const b=e.target.closest('button[data-u]');if(!b)return;nbU=b.dataset.u;$('nbUni').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
 $('nbCancel').addEventListener('click',cerrarNuevo);
@@ -2642,8 +2787,119 @@ $('nbForm').addEventListener('submit',e=>{e.preventDefault();
   const buque=S($('nbBuque').value).toUpperCase().replace(/^(MV|M\/V)\s+/,'');
   if(!buque){$('nbErr').textContent='Falta el nombre del buque.';$('nbErr').hidden=false;$('nbBuque').focus();return;}
   store.set('nbUni',nbU);
-  const d=deParte({});d.manual=true;d.buque=buque;d.unidad=nbU;d.cereal=S($('nbCereal').value).toUpperCase();d.exportador=S($('nbExp').value).toUpperCase();
+  const d=deParte({});d.manual=true;d.buque=buque;d.unidad=nbU;d.cereal=S($('nbCereal').value).toUpperCase();d.exportador=exportadoresTxt($('nbExp').value);
   cerrarNuevo();iniciar(d);
 });
+
+/* ================= datos del buque por secciones ================= */
+const SECC=[
+  {id:'buque',t:'Buque y carga',d:'Lo que identifica al buque y lo que carga.',f:['buque','unidad','exportador','cereal','destino','agencia']},
+  {id:'ident',t:'Identificación',d:'Códigos, bandera y de dónde viene.',f:['codigo','matricula','imo','proc']},
+  {id:'horarios',t:'Horarios',d:'También se cargan con un toque desde Operación.',f:['rada','atraco','habilitado','comenzo','finalizo','zarpo']},
+  {id:'medidas',t:'Medidas y calados',d:'Del certificado del buque y los calados de entrada y salida.',f:['eslora','manga','puntal','trn','trb','caladoIni','caladoFin']},
+  {id:'plano',t:'Plano',d:'Sale en el cuadro de cada turno.',f:['planoTotal','caladoPlano','cortoCarga','etf']},
+  {id:'personal',t:'Control y personal',d:'Quiénes intervienen en la operación.',f:['control','coordinador','reviso','estibaje','opip','armadores','otras']},
+  {id:'planilla',t:'Planilla',adm:1,d:'Lo que completa administración para la planilla.',f:['nro','expTabla','draft','muelle','pip','pb','habilita','habilitaTurno','observaciones','demorasSN','demoras','factor']},
+];
+const fdef=id=>ALL.find(x=>x.id===id);
+const esCoordNow=()=>typeof esCoord==='function'&&auth.currentUser&&esCoord();
+const seccionesVis=()=>SECC.filter(s=>!s.adm||!esCoordNow());
+const faltanSec=s=>s.f.map(fdef).filter(f=>f&&!isOpt(f)&&isEmpty(f));
+const totSec=s=>s.f.map(fdef).filter(f=>f&&!isOpt(f)).length;
+const secDe=id=>SECC.find(s=>s.f.includes(id));
+function renderDatos(){
+  if(!state.d)return;const vis=seccionesVis();if(!state.dSec||!vis.some(s=>s.id===state.dSec))state.dSec=vis[0].id;
+  let total=0;
+  $('dSecs').innerHTML=vis.map((s,i)=>{const fal=faltanSec(s).length,tot=totSec(s);total+=fal;
+    const st=!fal?'ok':fal<tot?'md':'';
+    return `${s.adm&&!(vis[i-1]||{}).adm?'<div class="adm">Solo administración</div>':''}<button type="button" data-s="${s.id}" aria-current="${s.id===state.dSec}"><i class="${st}"></i><span>${s.t}</span><em class="${fal?'':'ok'}">${fal?`${tot-fal} de ${tot}`:'Completo'}</em></button>`;}).join('');
+  const sinT=!state.d.total;
+  $('vnavFalta').hidden=!total;$('vnavFalta').textContent=total===1?'1 falta':`${total} faltan`;
+  $('dPanel').querySelectorAll('.df[data-id]').forEach(b=>{const f=fdef(b.dataset.id);if(f)b.classList.toggle('miss',!isOpt(f)&&isEmpty(f));});
+  const s=vis.find(x=>x.id===state.dSec),i=vis.indexOf(s);
+  const sig=vis.slice(i+1).concat(vis.slice(0,i)).find(x=>faltanSec(x).length)||vis[i+1];
+  $('dNext').hidden=!sig;if(sig){$('dNext').dataset.s=sig.id;$('dNext').textContent=`Siguiente: ${sig.t} ›`;}
+  if(!faltanSec(s).length&&!vis.some(x=>faltanSec(x).length)){$('dNext').hidden=false;$('dNext').dataset.s='';$('dNext').textContent=esCoordNow()?'Todo completo ✓':'Todo completo · ir a la planilla ›';}
+}
+$('dSecs').addEventListener('click',e=>{const b=e.target.closest('button[data-s]');if(!b)return;state.dSec=b.dataset.s;renderDatos();renderSec(true);});
+$('dNext').addEventListener('click',()=>{const s=$('dNext').dataset.s;if(!s){if(!esCoordNow())setVista('docs');return;}state.dSec=s;renderDatos();renderSec(true);
+  $('dPanel').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{const f=$('dFields').querySelector('.df.miss input,.df.miss button');if(f&&f.tagName==='INPUT')f.focus({preventScroll:true});},250);});
+function irAlDato(id){state.dSec=(secDe(id)||{}).id||state.dSec;setVista('datos');renderDatos();renderSec(true);
+  setTimeout(()=>{const b=$('dFields').querySelector(`.df[data-id="${id}"]`);if(!b)return;b.scrollIntoView({behavior:'smooth',block:'center'});const i=b.querySelector('input');if(i)i.focus({preventScroll:true});},120);}
+function setV(id,val){state.v[id]=val;refresh();}
+function renderSec(forzar){
+  if(!state.d)return;const host=$('dFields');
+  if(!forzar&&host.contains(document.activeElement)&&/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+  const s=SECC.find(x=>x.id===state.dSec)||SECC[0];$('dTit').textContent=s.t;$('dSub').textContent=s.d;host.innerHTML='';
+  const v=state.v;
+  for(const id of s.f){const f=fdef(id);if(!f)continue;
+    const box=document.createElement('div');box.className='df'+(f.wide||['exportador','cereal','observaciones','armadores'].includes(id)?' w':'');box.dataset.id=id;
+    const lab=f.label.replace(/\s*\(.*\)$/,'')+(isOpt(f)?' <small>(opcional)</small>':'');
+    if(id==='unidad'){
+      box.innerHTML=`<span class="l">${lab}</span><div class="dseg" role="group">${['VI','VII'].map(u=>`<button type="button" data-u="${u}" class="${S(v.unidad).toUpperCase().replace(/^U\.?\s*/,'')===u?'on':''}">U ${u}</button>`).join('')}</div>`;
+      box.querySelector('.dseg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setV('unidad',b.dataset.u);box.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
+    }else if(id==='exportador'){
+      box.innerHTML=`<span class="l">Exportadores <small>· si carga más de uno, agregalos todos</small></span><div class="dchips"></div>`;
+      const ch=box.querySelector('.dchips');
+      const pinta=()=>{const l=expsBuque();ch.innerHTML=l.map(x=>`<button type="button" class="tag" data-x="${esc(x)}" aria-label="Quitar ${esc(x)}">${esc(x)} ✕</button>`).join('')+
+        `<input placeholder="+ Agregar" aria-label="Agregar exportador">`+sugerencias('exportador',EXPORTADORES).flatMap(x=>x.split(/\s*\/\s*/)).filter((x,i,a)=>a.indexOf(x)===i&&!l.includes(x)).slice(0,5).map(x=>`<button type="button" data-a="${esc(x)}">${esc(x)}</button>`).join('');
+        const inp=ch.querySelector('input');inp.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==',')return;e.preventDefault();if(S(inp.value)){setExportadores([...expsBuque(),inp.value]);refresh();pinta();ch.querySelector('input').focus();}});
+        inp.addEventListener('blur',()=>{if(S(inp.value)){setExportadores([...expsBuque(),inp.value]);refresh();pinta();}});};
+      ch.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+        if(b.dataset.x)setExportadores(expsBuque().filter(x=>x!==b.dataset.x));else if(b.dataset.a)setExportadores([...expsBuque(),b.dataset.a]);
+        refresh();pinta();if(op.t)pintarExp();});
+      pinta();
+    }else if(f.type==='dt'){
+      box.innerHTML=`<label>${lab}</label><div class="dpair"><input type="date" aria-label="${esc(f.label)} fecha"><input aria-label="${esc(f.label)} hora"><button type="button" class="btn alt">Ahora</button></div>`;
+      const [fi,hi]=box.querySelectorAll('input');fi.value=v[id+'_f']||'';hi.value=v[id+'_h']||'';
+      fi.addEventListener('change',()=>setV(id+'_f',fi.value));
+      horaInput(hi,()=>v[id+'_h']||'',val=>{if(!v[id+'_f']){v[id+'_f']=fechaHoy();fi.value=v[id+'_f'];}setV(id+'_h',val);});
+      box.querySelector('.btn').addEventListener('click',()=>{const n=ahoraFH();v[id+'_f']=n.f;fi.value=n.f;hi.value=n.h;setV(id+'_h',n.h);});
+    }else if(f.type==='sel'){
+      box.innerHTML=`<span class="l">${lab}</span><div class="dseg" role="group">${f.opts.map(o=>`<button type="button" class="${S(v[id])===o?'on':''}">${o}</button>`).join('')}</div>`;
+      box.querySelector('.dseg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const nv=S(v[id])===b.textContent?'':b.textContent;setV(id,nv);
+        box.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.textContent===nv));if(id==='demorasSN')renderSec(true);});
+    }else{
+      box.innerHTML=`<label for="dF_${id}">${lab}</label><input id="dF_${id}" ${f.mode?`inputmode="${f.mode}"`:''} placeholder="${esc(f.ph||'')}">`+(f.hint?`<span class="hint2">${esc(f.hint)}</span>`:'');
+      const inp=box.querySelector('input');inp.value=S(v[id]);inp.addEventListener('input',()=>setV(id,inp.value));
+      if(id==='cereal'){const c=document.createElement('div');c.className='dchips';
+        c.innerHTML=sugerencias('cereal',CEREALES).map(x=>`<button type="button" class="${S(v.cereal).toUpperCase()===x?'on':''}">${esc(x)}</button>`).join('');
+        c.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;inp.value=b.textContent;setV('cereal',b.textContent);c.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));});
+        inp.addEventListener('input',()=>c.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.textContent===S(inp.value).toUpperCase())));
+        box.appendChild(c);}
+    }
+    host.appendChild(box);}
+  renderDatos();
+}
+
+/* ================= planilla y documentos ================= */
+const FALTA_PLA=()=>{const ids=SECC.flatMap(s=>s.f);const l=ids.map(fdef).filter(f=>f&&!isOpt(f)&&isEmpty(f)).map(f=>({id:f.id,t:f.label.replace(/\s*\(.*\)$/,'')}));
+  if(!state.d.total)l.push({id:'',t:'Toneladas por turno'});return l;};
+const NOTA_ID={'Bandera':'matricula','Estadía':'zarpo','Efectiva':'finalizo','Atrac':'atraco','Zarp':'zarpo','Finaliz':'finalizo','Comenz':'comenzo'};
+const idNota=t=>{const f=ALL.find(x=>x.label===t||x.label.replace(/\s*\(.*\)$/,'')===t);if(f&&secDe(f.id))return f.id;const k=Object.keys(NOTA_ID).find(k=>t.startsWith(k));return k?NOTA_ID[k]:'';};
+const FALTA_NOTA=()=>NOTA.filter(f=>!isOpt(f)&&isEmpty(f)).map(f=>({t:f.label,nota:1})).concat((state.notaFalta||[]).filter(t=>!NOTA.some(f=>f.label===t)).map(t=>({t,id:idNota(t)})));
+function pintaMiss(host,l){host.innerHTML=l.slice(0,10).map(x=>x.id?`<button type="button" data-id="${x.id}">${esc(x.t)}</button>`:`<span>${esc(x.t)}</span>`).join('')+(l.length>10?`<span>y ${l.length-10} más</span>`:'');}
+function estado(el,n){el.className='st '+(n?'no':'ok');el.textContent=n?(n===1?'Falta 1':`Faltan ${n}`):'Listo';}
+function renderDocs(){
+  if(!state.d||!document.body.classList.contains('vdocs'))return;
+  const fp=FALTA_PLA(),fn=FALTA_NOTA(),c=cuadro();
+  estado($('docPlaSt'),fp.length);pintaMiss($('docPlaMiss'),fp);
+  estado($('docNotaSt'),fn.length);pintaMiss($('docNotaMiss'),fn.filter(x=>!x.nota));
+  const fc=[!c.est&&{id:'zarpo',t:'Atracó y zarpó'},!c.efe&&{id:'finalizo',t:'Inicio de la efectiva y fin de carga'}].filter(Boolean);
+  estado($('docCuaSt'),fc.length);pintaMiss($('docCuaMiss'),fc);
+  $('docCuaRes').textContent=c.est||c.efe?[c.est&&'Estadía '+fHM(c.tE),c.efe&&'Efectiva '+fHM(c.tF),'Demoras '+fHM(c.tD),c.efe&&'Neta '+fHM(c.neta)].filter(Boolean).join(' · '):'';
+}
+document.querySelectorAll('#docsV .dmiss').forEach(h=>h.addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b)irAlDato(b.dataset.id);}));
+async function previa(kind,idx){state.tab=kind;await abrirVista();if(idx){vista.idx=idx;mostrarVista();}}
+async function descargar(kind,idx){
+  const falta=kind==='planilla'?FALTA_PLA():kind==='cuadro'?[]:FALTA_NOTA();
+  if(falta.length){toast(`Antes de descargar falta: ${falta.slice(0,3).map(x=>x.t).join(', ')}${falta.length>3?'…':''}`);const p=falta.find(x=>x.id);if(p)irAlDato(p.id);else{const i=$('docNotaF').querySelector('.field.missing input');if(i)i.focus();}return;}
+  const tab=kind==='planilla'?'planilla':'nota';const xs=await archivos(tab);recordar(tab);bajar(xs[idx||0]);
+}
+$('docPlaVer').addEventListener('click',()=>previa('planilla'));$('docPlaDl').addEventListener('click',()=>descargar('planilla'));
+$('docNotaVer').addEventListener('click',()=>previa('nota'));$('docNotaDl').addEventListener('click',()=>descargar('nota'));
+$('docCuaVer').addEventListener('click',()=>previa('nota',1));$('docCuaDl').addEventListener('click',()=>{const c=cuadro();if(!c.est||!c.efe){toast('Faltan horarios para el cuadro.');irAlDato(!c.est?'zarpo':'finalizo');return;}descargar('cuadro',1);});
+$('docLisBtn').addEventListener('click',()=>{const o=$('docLisBox').hidden;$('docLisBox').hidden=!o;$('docLisBtn').setAttribute('aria-expanded',o);$('docLisBtn').textContent=o?'Cerrar listado':'Abrir listado';if(o){refresh();$('docLisBox').scrollIntoView({behavior:'smooth',block:'start'});}});
+$('docImport').addEventListener('click',()=>$('completar').click());
 </script>
 </body></html>
