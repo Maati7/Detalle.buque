@@ -1439,10 +1439,15 @@ function tramo(k1,k2){
     if(e>s)rows.push({fecha:serialParts(day).f,desde:s-day*1440,hasta:e-day*1440,mins:e-s});}
   return rows;
 }
+function embarcoTxt(){
+  const d=state.d;if(!d.total)return '';const tot=fmtTons(d.total)+' TN',exps=expsBuque();if(exps.length<2)return tot;
+  const por=new Map(exps.map(x=>[x,0]));d.turnos.forEach(t=>{const e=S(t.exp).toUpperCase()||exps[0];por.set(e,(por.get(e)||0)+t.total);});
+  const l=[...por].filter(([,n])=>n>0);return l.length<2?tot:`${tot} (${l.map(([e,n])=>`${e}: ${fmtTons(n)} TN`).join(' / ')})`;
+}
 function notaLineas(){
   const v=state.v,fe=(k)=>v[k+'_f']&&v[k+'_h']?`${fdmy(v[k+'_f'])} ${v[k+'_h']} hs.`:'';
   return [['Unidad',romano(v.unidad)],['Exportador/es',S(v.exportador)],['Bandera',S(v.matricula)],['Destino',S(v.destino)],
-    ['Producto',S(v.cereal)],['Embarco',state.d.total?fmtTons(state.d.total)+' TN':''],['Agencia/s',S(v.agencia)],
+    ['Producto',S(v.cereal)],['Embarco',embarcoTxt()],['Agencia/s',S(v.agencia)],
     ['Inició carga',fe('comenzo'),1],['Finalizo',fe('finalizo'),1],
     ['Eslora',S(v.eslora)?dec2(v.eslora)+' Mts':''],['Manga',S(v.manga)?dec2(v.manga)+' Mts':''],
     ['Puntal',S(v.puntal)?dec2(v.puntal)+' Mts':''],['T.R.N.',S(v.trn)?milesTxt(v.trn):'']];
