@@ -501,6 +501,9 @@ body:not(.vdatos) #checks{display:none!important}
 .odd .r .x{border:0;background:transparent;color:var(--steel);width:28px;height:28px;border-radius:6px;font-size:15px;cursor:pointer}
 .odd .r .x:hover{background:var(--paper);color:var(--bad)}
 .odd .none{padding:6px 12px;color:var(--steel);font-size:14px;border-top:1px dashed var(--rule)}
+.odd.sinf{border-color:#D9B36A}
+.odd.sinf .h{background:var(--amber-bg);color:#7A4E00}
+.odd .r select{margin-left:auto;font:600 14px Barlow,sans-serif;border:1.5px solid #D9B36A;border-radius:8px;padding:4px 6px;background:#fff}
 .toast .tundo{margin-left:12px;border:0;background:transparent;color:#9CC9F2;font:700 15px Barlow,sans-serif;cursor:pointer;text-decoration:underline}
 .nbbox{margin:auto;width:min(660px,100%);background:var(--card);border-radius:16px;padding:22px 24px;box-shadow:0 20px 50px rgba(0,0,0,.3);max-height:100%;overflow:auto}
 .nbbox h3{margin:0 0 4px;font:700 30px/1 "Barlow Condensed",sans-serif}
@@ -2337,7 +2340,8 @@ function completar(d){
   if(!S(v.demoras)&&S(d.demoras)){v.demoras=d.demoras;v.demorasSN=d.demorasSN;n++;}
   if(!state.d.turnos.length&&d.turnos.length){state.d.turnos=d.turnos;n++;}
   const ya=new Set(state.d.demList.map(x=>[x.fecha,x.desde,x.hasta].join('|')));
-  for(const x of d.demList){const k=[x.fecha,x.desde,x.hasta].join('|');if(!ya.has(k)){state.d.demList.push(x);ya.add(k);n++;}}
+  const yaHora=new Set(state.d.demList.map(x=>[x.desde,x.hasta].join('|')));
+  for(const x of d.demList){const k=[x.fecha,x.desde,x.hasta].join('|');if(ya.has(k)||(!x.fecha&&yaHora.has([x.desde,x.hasta].join('|'))))continue;state.d.demList.push(x);ya.add(k);n++;}
   if(d.totalSergio)state.d.totalSergio=d.totalSergio;
   if(!state.d.nroSergio&&d.nroSergio)state.d.nroSergio=d.nroSergio;
   recalcTurnos();redibujar();
@@ -2751,12 +2755,22 @@ function renderOdCuadro(){
       return `<div class="r${lv?' live':''}${x.on===false?' off':''}">${esc(x.desde||'?')} a ${lv?'…':esc(x.hasta||'?')} ${esc(S(x.motivo))}${lv?' (en curso)':''}<em>${fHM(mins)}</em><button type="button" class="x" data-del="${i}" aria-label="Borrar demora">✕</button></div>`;}).join('')
       :'<div class="none">Sin demoras</div>';
     return `<div class="odd"><div class="h">${fdm(f)}<b>${fHM(subs[f]||0)}</b></div>${rows}</div>`;}).join('');
-  const sinF=state.d.demList.filter(x=>!x.fecha).length;
+  const sinL=state.d.demList.map((x,i)=>[x,i]).filter(([x])=>!x.fecha),sinF=sinL.length;
+  const conH=new Set(state.d.demList.filter(x=>x.fecha).map(x=>[x.desde,x.hasta].join('|')));
+  const rep=sinL.filter(([x])=>conH.has([x.desde,x.hasta].join('|'))).length;
+  const opts=dias.map(f=>`<option value="${f}">${fdm(f)}</option>`).join('');
   $('odCuadro').innerHTML=(html||'<div class="odd"><div class="none" style="border:0">Los días aparecen cuando se carga el atraque o el comienzo de carga.</div></div>')+
-    (sinF?`<p class="onote">Hay ${sinF} demora${sinF>1?'s':''} sin fecha: completalas en «Todos los datos».</p>`:'');
+    (sinF?`<div class="odd sinf"><div class="h">Sin fecha · elegí el día<b>${sinF}</b></div>${rep?`<div class="none">${rep===sinF?'Son':'Hay '+rep+' que son'} las mismas horas que otras que ya tienen fecha: seguramente están repetidas. <button type="button" class="link" data-rep="1">Borrar las repetidas (${rep})</button></div>`:''}`+
+      sinL.map(([x,i])=>`<div class="r">${esc(x.desde||'?')} a ${esc(x.hasta||'?')} ${esc(S(x.motivo))}<select data-fecha="${i}" aria-label="Día de la demora"><option value="">Día…</option>${opts}</select><button type="button" class="x" data-del="${i}" aria-label="Borrar demora">✕</button></div>`).join('')+'</div>':'');
   $('odEf').textContent=c.efe?fHM(c.tF):'—';$('odDem').textContent=fHM(c.tD);$('odNeta').textContent=c.efe?fHM(c.neta):'—';
 }
-$('odCuadro').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;const i=+b.dataset.del,x=state.d.demList[i];if(!x)return;
+$('odCuadro').addEventListener('change',e=>{const s=e.target.closest('select[data-fecha]');if(!s||!s.value)return;const x=state.d.demList[+s.dataset.fecha];if(!x)return;
+  x.fecha=s.value;state.demVer=(state.demVer||0)+1;refresh();guardar();toastUndo(`Demora pasada al ${fdm(s.value)}.`,()=>{x.fecha='';state.demVer=(state.demVer||0)+1;refresh();guardar();});});
+$('odCuadro').addEventListener('click',e=>{
+  if(e.target.closest('[data-rep]')){const conH=new Set(state.d.demList.filter(x=>x.fecha).map(x=>[x.desde,x.hasta].join('|')));const antes=JSON.parse(JSON.stringify(state.d.demList));
+    const n=state.d.demList.length;state.d.demList=state.d.demList.filter(x=>x.fecha||!conH.has([x.desde,x.hasta].join('|')));const q=n-state.d.demList.length;
+    state.demVer=(state.demVer||0)+1;refresh();guardar();toastUndo(`Se borraron ${q} demora${q>1?'s':''} repetida${q>1?'s':''}.`,()=>{state.d.demList=antes;state.demVer=(state.demVer||0)+1;refresh();guardar();});return;}
+  const b=e.target.closest('[data-del]');if(!b)return;const i=+b.dataset.del,x=state.d.demList[i];if(!x)return;
   if(!confirm(`¿Borrar la demora de ${x.desde||'?'} a ${x.hasta||'…'} del ${fdm(x.fecha)}?`))return;
   state.d.demList.splice(i,1);state.demVer=(state.demVer||0)+1;refresh();guardar();
   toastUndo('Demora borrada.',()=>{state.d.demList.splice(i,0,x);state.demVer=(state.demVer||0)+1;refresh();guardar();});});
@@ -2917,7 +2931,7 @@ function renderSec(forzar){
 /* ================= planilla y documentos ================= */
 const FALTA_PLA=()=>{const ids=SECC.flatMap(s=>s.f);const l=ids.map(fdef).filter(f=>f&&!isOpt(f)&&isEmpty(f)).map(f=>({id:f.id,t:f.label.replace(/\s*\(.*\)$/,'')}));
   if(!state.d.total)l.push({id:'',t:'Toneladas por turno'});return l;};
-const NOTA_ID={'Bandera':'matricula','Estadía':'zarpo','Efectiva':'finalizo','Atrac':'atraco','Zarp':'zarpo','Finaliz':'finalizo','Comenz':'comenzo'};
+const NOTA_ID={'Fecha y horario de las demoras':'#dem','Bandera':'matricula','Estadía':'zarpo','Efectiva':'finalizo','Atrac':'atraco','Zarp':'zarpo','Finaliz':'finalizo','Comenz':'comenzo'};
 const idNota=t=>{const f=ALL.find(x=>x.label===t||x.label.replace(/\s*\(.*\)$/,'')===t);if(f&&secDe(f.id))return f.id;const k=Object.keys(NOTA_ID).find(k=>t.startsWith(k));return k?NOTA_ID[k]:'';};
 const FALTA_NOTA=()=>NOTA.filter(f=>!isOpt(f)&&isEmpty(f)).map(f=>({t:f.label,nota:1})).concat((state.notaFalta||[]).filter(t=>!NOTA.some(f=>f.label===t)).map(t=>({t,id:idNota(t)})));
 function pintaMiss(host,l){host.innerHTML=l.slice(0,10).map(x=>x.id?`<button type="button" data-id="${x.id}">${esc(x.t)}</button>`:`<span>${esc(x.t)}</span>`).join('')+(l.length>10?`<span>y ${l.length-10} más</span>`:'');}
@@ -2931,11 +2945,11 @@ function renderDocs(){
   estado($('docCuaSt'),fc.length);pintaMiss($('docCuaMiss'),fc);
   $('docCuaRes').textContent=c.est||c.efe?[c.est&&'Estadía '+fHM(c.tE),c.efe&&'Efectiva '+fHM(c.tF),'Demoras '+fHM(c.tD),c.efe&&'Neta '+fHM(c.neta)].filter(Boolean).join(' · '):'';
 }
-document.querySelectorAll('#docsV .dmiss').forEach(h=>h.addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(b)irAlDato(b.dataset.id);}));
+document.querySelectorAll('#docsV .dmiss').forEach(h=>h.addEventListener('click',e=>{const b=e.target.closest('button[data-id]');if(!b)return;if(b.dataset.id==='#dem'){setVista('ops');opAbrir('dem');return;}irAlDato(b.dataset.id);}));
 async function previa(kind,idx){state.tab=kind;await abrirVista();if(idx){vista.idx=idx;mostrarVista();}}
 async function descargar(kind,idx){
   const falta=kind==='planilla'?FALTA_PLA():kind==='cuadro'?[]:FALTA_NOTA();
-  if(falta.length){toast(`Antes de descargar falta: ${falta.slice(0,3).map(x=>x.t).join(', ')}${falta.length>3?'…':''}`);const p=falta.find(x=>x.id);if(p)irAlDato(p.id);else{const i=$('docNotaF').querySelector('.field.missing input');if(i)i.focus();}return;}
+  if(falta.length){toast(`Antes de descargar falta: ${falta.slice(0,3).map(x=>x.t).join(', ')}${falta.length>3?'…':''}`);const p=falta.find(x=>x.id);if(p&&p.id==='#dem'){setVista('ops');opAbrir('dem');}else if(p)irAlDato(p.id);else{const i=$('docNotaF').querySelector('.field.missing input');if(i)i.focus();}return;}
   const tab=kind==='planilla'?'planilla':'nota';const xs=await archivos(tab);recordar(tab);bajar(xs[idx||0]);
 }
 $('docPlaVer').addEventListener('click',()=>previa('planilla'));$('docPlaDl').addEventListener('click',()=>descargar('planilla'));
