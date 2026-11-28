@@ -568,6 +568,16 @@ body:not(.vdatos) #checks{display:none!important}
 .olist .ac button:hover{border-color:var(--harbor)}
 .olist .vac{color:var(--steel);font-size:14px;padding:10px 0}
 .odel{color:var(--bad);margin-left:auto}
+.ofalta{background:var(--amber-bg);border:1.5px solid #E0B252;border-radius:12px;padding:10px 12px}
+.ofalta b{display:block;color:#7A4E00;font-size:15px;margin-bottom:6px}
+.ofalta .ch{display:flex;flex-wrap:wrap;gap:6px}
+.ofalta button{border:1px solid #D9B36A;background:#fff;border-radius:14px;padding:3px 10px;font:600 14px Barlow,sans-serif;color:#7A4E00;cursor:pointer}
+.ofalta button:hover{border-color:#7A4E00}
+.olist tr.gap td{background:#FFF8E6;color:#7A4E00}
+.olist tr.gap td.gt{font-weight:700}
+.olist tr.sc td{color:var(--steel)}
+.olist tr.sc td.tb{font-weight:600;font-style:italic}
+.bcard .falt{margin-top:6px;font-size:14px;font-weight:600;color:#7A4E00;background:var(--amber-bg);border-radius:8px;padding:3px 8px;display:inline-block}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--harbor-2);outline-offset:2px}
 </style>
@@ -653,6 +663,7 @@ body:not(.vdatos) #checks{display:none!important}
           <div class="orun" id="opRun" hidden><span class="oi">⏸</span><div><b>Demora en curso</b><br><span id="opRunTxt"></span></div><span class="t" id="opRunT"></span></div>
           <button class="btn red full" id="opRunFin" hidden>Terminó la demora · ahora</button>
           <button class="onext" id="opNext"><span class="oi" id="opNextI">⚓</span><span><b id="opNextT"></b><small id="opNextS"></small></span></button>
+          <div class="ofalta" id="opFalta" hidden></div>
           <div class="oacts"><button class="oact" id="opTurnoBtn"><span>⚖️</span>Cargar turno</button><button class="oact red" id="opDemBtn"><span>⏸</span>Demora</button></div>
           <div class="otl" id="opTl"></div>
           <div class="omini"><button class="link" id="opHist">Historial de cambios</button><button class="link" id="opDatos">Datos del buque ›</button></div>
@@ -675,7 +686,7 @@ body:not(.vdatos) #checks{display:none!important}
               </div>
               <div class="obyexp" id="otByExp" hidden></div>
               <div class="orow2"><label>Observaciones<input id="otObs" placeholder="opcional"></label><label>Manos<input id="otManos" inputmode="numeric" placeholder="—"></label></div>
-              <div class="obar"><button class="btn" id="otSave">Guardar turno</button><button class="btn alt" id="otSaveCq">Guardar y ver el cuadro</button><button type="button" class="link odel" id="otDel" hidden>Borrar este turno</button><span class="ohint">Enter pasa a la bodega siguiente</span></div>
+              <div class="obar"><button class="btn" id="otSave">Guardar turno</button><button class="btn alt" id="otSaveCq">Guardar y ver el cuadro</button><button type="button" class="btn alt" id="otSin" hidden>No hubo carga en este turno</button><button type="button" class="link odel" id="otDel" hidden>Borrar este turno</button><span class="ohint">Enter pasa a la bodega siguiente</span></div>
               <div class="olist" id="otList"></div>
             </div>
             <div id="opPD" hidden>
@@ -1236,9 +1247,10 @@ function refresh(){
 /* ---------- filas de la tabla ---------- */
 function filasCarga(){
   const d=state.d,v=state.v,rows=[];let prevF=null,prevE=null;
-  const dia={};d.turnos.forEach(t=>dia[t.fecha]=(dia[t.fecha]||0)+t.total);
-  d.turnos.forEach((t,i)=>{
-    const lastOfDay=i===d.turnos.length-1||d.turnos[i+1].fecha!==t.fecha;
+  const ts=d.turnos.filter(t=>t.total>0).sort((a,b)=>claveOrden(a).localeCompare(claveOrden(b)));
+  const dia={};ts.forEach(t=>dia[t.fecha]=(dia[t.fecha]||0)+t.total);
+  ts.forEach((t,i)=>{
+    const lastOfDay=i===ts.length-1||ts[i+1].fecha!==t.fecha;
     const exp=d.multiExp?t.exp:v.expTabla;
     t.tons.forEach((b,j)=>{const last=j===t.tons.length-1;
       rows.push({A:j===0&&t.fecha!==prevF?t.fecha:null,B:j===0?t.turno:null,C:j===0?v.cereal:null,D:b.bodega,E:b.tons,
@@ -1249,7 +1261,7 @@ function filasCarga(){
 }
 function filasManos(){
   const out=[];
-  for(const t of state.d.turnos){
+  for(const t of state.d.turnos.filter(t=>t.total>0).sort((a,b)=>claveOrden(a).localeCompare(claveOrden(b)))){
     if(typeof t.manos!=='number')continue;const [a,b]=t.turno.split(' a ');const last=out[out.length-1];
     if(last&&b&&last.fecha===t.fecha&&last.manos===t.manos&&last.end===a)last.end=b;
     else out.push({fecha:t.fecha,start:a,end:b,manos:t.manos,raw:t.turno});
@@ -2164,7 +2176,24 @@ $('apikeyIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('apikeyOk').cl
 function numTons(s){s=S(s).replace(/\s/g,'');if(!s)return 0;
   if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');else if(s.includes(','))s=s.replace(',','.');
   else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');const n=parseFloat(s);return isNaN(n)?0:n;}
-function recalcTurnos(dd){const d=dd||state.d;d.turnos.forEach(t=>{t.tons=t.tons.filter(x=>x.tons).sort((a,b)=>a.bodega-b.bodega);t.total=t.tons.reduce((s,x)=>s+x.tons,0);});
+const claveOrden=t=>{const m=/^\s*(\d{1,2})/.exec(S(t.turno));return S(t.fecha)+(m?pad(+m[1]):'99');};
+/* turnos sin cargar: desde que comenzó la carga hasta que finalizó (o hasta el último turno ya terminado) */
+function turnosFaltantes(v,turnos,estado){
+  v=v||{};turnos=turnos||[];
+  const has=new Set(turnos.map(t=>S(t.fecha)+'|'+turnoNorm(t.turno)));
+  const slotT=t=>{const m=/^\s*(\d{1,2})/.exec(turnoNorm(t.turno));return t.fecha&&m?dateToSerial(t.fecha)*4+Math.floor(+m[1]/6):null;};
+  const ts=turnos.map(slotT).filter(x=>x!=null);
+  let a=v.comenzo_f&&v.comenzo_h?dateToSerial(v.comenzo_f)*4+Math.floor(toMin(v.comenzo_h)/360):(ts.length?Math.min(...ts):null);
+  if(a==null)return [];
+  let b;
+  if(v.finalizo_f&&v.finalizo_h)b=Math.floor((dateToSerial(v.finalizo_f)*1440+toMin(v.finalizo_h)-1)/360);
+  else if(estado!=='Terminado'){const n=new Date();b=Math.floor((dateToSerial(fechaHoy())*1440+n.getHours()*60+n.getMinutes()-60)/360)-1;}
+  else b=ts.length?Math.max(...ts):a;
+  const out=[];
+  for(let s=a;s<=b&&out.length<40;s++){const f=serialParts(Math.floor(s/4)).f,hh=(s%4)*6,t=`${pad(hh)} a ${pad(hh+6)}`;if(!has.has(f+'|'+t))out.push({f,t});}
+  return out;
+}
+function recalcTurnos(dd){const d=dd||state.d;d.turnos.sort((a,b)=>claveOrden(a).localeCompare(claveOrden(b)));d.turnos.forEach(t=>{t.tons=t.tons.filter(x=>x.tons).sort((a,b)=>a.bodega-b.bodega);t.total=t.tons.reduce((s,x)=>s+x.tons,0);});
   d.total=d.turnos.reduce((s,t)=>s+t.total,0);const exps=[...new Set(d.turnos.map(t=>t.exp).filter(Boolean))];d.multiExp=exps.length>1;}
 const inicioTurno=t=>{const m=/^(\d{1,2})/.exec(S(t.turno));return m?pad(+m[1]):'99';};
 const turnosOrden=()=>state.d.turnos.slice().sort((a,b)=>(S(a.fecha)+inicioTurno(a)).localeCompare(S(b.fecha)+inicioTurno(b)));
@@ -2266,6 +2295,8 @@ function renderLista(){
     const datos=[x.cereal&&['Cereal',x.cereal],x.total?['A bordo',fmtTons(x.total)+' t']:null,x.atraco&&['Atracó',fCorta(x.atraco)],x.finalizo&&['Finalizó',fCorta(x.finalizo)],x.zarpo&&['Zarpó',fCorta(x.zarpo)]].filter(Boolean);
     return `<button class="bcard${term?' term':''}" data-id="${esc(x.id)}"><div class="r1"><span class="nm">${esc(x.buque||'BUQUE NUEVO')}</span>${x.nro?`<span>Nº ${esc(x.nro)}</span>`:''}<span class="chip">${term?'Terminado':'Operando'}</span></div>
       ${datos.length?`<div class="r2">${datos.map(([k,v])=>`<span>${k} <b>${esc(v)}</b></span>`).join('')}</div>`:''}
+      ${(()=>{if(term)return '';const fl=turnosFaltantes(x.v,(x.d||{}).turnos,x.estado);if(!fl.length)return '';
+        return `<div class="falt">Falta cargar ${fl.length===1?'el turno':fl.length+' turnos:'} ${fl.slice(0,2).map(g=>`${g.t} del ${fCorta(g.f)}`).join(', ')}${fl.length>2?'…':''}</div>`;})()}
       <div class="upd">${x.updatedBy?'Último cambio: '+esc(x.updatedBy)+', ':''}${hace(x.updatedAt)}</div></button>`;};
   const op=L.filter(x=>x.estado!=='Terminado'),te=L.filter(x=>x.estado==='Terminado').slice(0,40);
   $('nOper').textContent=op.length;$('nTerm').textContent=L.filter(x=>x.estado==='Terminado').length;
@@ -2654,6 +2685,7 @@ function opCerrar(){op.open=false;document.body.style.overflow='';if($('opsR'))p
 function pintarPanel(){$('opPT').hidden=op.panel!=='turno';$('opPD').hidden=op.panel!=='dem';$('opsR').classList.toggle('open',op.open);
   $('opTurnoBtn').classList.toggle('on',op.panel==='turno');$('opDemBtn').classList.toggle('on',op.panel==='dem');}
 $('opTurnoBtn').addEventListener('click',()=>opAbrir('turno'));
+$('opFalta').addEventListener('click',e=>{const b=e.target.closest('button[data-f]');if(!b)return;opAbrir('turno');cargarBorrador(b.dataset.f,b.dataset.t);});
 $('opDemBtn').addEventListener('click',()=>opAbrir('dem'));
 $('opDim').addEventListener('click',opCerrar);
 document.querySelectorAll('.oclose').forEach(b=>b.addEventListener('click',opCerrar));
@@ -2678,7 +2710,7 @@ function cargarBorrador(f,t){
   pintarTurno();
 }
 function pintarTurno(){
-  const d=op.t,B=state.nBod||7;$('otDel').hidden=!d.ex;
+  const d=op.t,B=state.nBod||7;$('otDel').hidden=!d.ex;$('otSin').hidden=d.ex||!turnosFaltantes(state.v,state.d.turnos,state.v.estado).some(g=>g.f===d.f&&g.t===d.t);
   $('otFecha').value=d.f;
   $('otSeg').innerHTML=TURNOS4.map(t=>`<button type="button" data-t="${t}" class="${t===d.t?'on':''}" aria-pressed="${t===d.t}">${t}${buscarTurno(d.f,t)?'<span class="dot" title="Ya cargado"></span>':''}</button>`).join('');
   const ex=$('otEx');ex.hidden=!d.ex;ex.className='onote ya';ex.textContent=d.ex?'Este turno ya estaba cargado: lo que cambies lo corrige.':'';
@@ -2732,6 +2764,10 @@ function guardarTurno(verCuadro){
   if(verCuadro)abrirCuadroTurno(t);
 }
 $('otSave').addEventListener('click',()=>guardarTurno(false));
+$('otSin').addEventListener('click',()=>{const d=op.t;if(buscarTurno(d.f,d.t))return;
+  const t={fecha:d.f,turno:d.t,tons:[],total:0,manos:null,exp:'',obs:S(d.obs)||'Sin carga',sinCarga:true};state.d.turnos.push(t);
+  recalcTurnos();renderTurnosEdit();refresh();guardar();d.ex=true;pintarTurno();
+  toastUndo(`Turno ${d.t} del ${fdm(d.f)} marcado sin carga.`,()=>{const i=state.d.turnos.indexOf(t);if(i>=0)state.d.turnos.splice(i,1);recalcTurnos();renderTurnosEdit();refresh();guardar();cargarBorrador(d.f,d.t);});});
 $('otDel').addEventListener('click',()=>{const d=op.t,t=buscarTurno(d.f,d.t);if(!t)return;
   if(!confirm(`¿Borrar el turno ${d.t} del ${fdm(d.f)} (${fmtTons(t.total)} t)?`))return;
   const antes=JSON.parse(JSON.stringify(state.d.turnos));state.d.turnos.splice(state.d.turnos.indexOf(t),1);
@@ -2742,11 +2778,18 @@ function renderListaTurnos(){
   const host=$('otList');if(!host||!state.d)return;const ts=turnosOrden(),B=Math.max(state.nBod||7,...ts.flatMap(t=>t.tons.map(x=>x.bodega)));
   if(!ts.length){host.innerHTML='<h4>Turnos cargados</h4><div class="vac">Todavía no hay turnos. Los que se guarden aparecen acá para revisarlos y corregirlos.</div>';return;}
   const multi=expsBuque().length>1,cur=op.t?claveT(op.t.f,op.t.t):'';let bordo=0;const totB={};
+  const gaps=turnosFaltantes(state.v,state.d.turnos,state.v.estado),items=ts.map(t=>({t,k:claveOrden(t)})).concat(gaps.map(g=>({g,k:g.f+g.t.slice(0,2)}))).sort((a,b)=>a.k.localeCompare(b.k));
+  const ncol=2+(multi?1:0)+B;
   const celda=n=>n?`<td>${fmtTons(n)}</td>`:'<td class="z">—</td>';
   let rows='';
-  ts.forEach((t,i)=>{bordo+=t.total;const nx=ts[i+1];
+  items.forEach((it,i)=>{
+    if(it.g){rows+=`<tr class="t gap${claveT(it.g.f,it.g.t)===cur?' on':''}" data-f="${it.g.f}" data-t="${it.g.t}"><td>${fdm(it.g.f)}</td><td>${it.g.t}</td><td class="gt" colspan="${ncol-2+2}">Falta cargar este turno</td><td><div class="ac"><button type="button" data-ed>Cargar</button></div></td></tr>`;
+      const nx=items[i+1];if(!nx||(nx.t?nx.t.fecha:nx.g.f)!==it.g.f){const dia=ts.filter(x=>x.fecha===it.g.f).reduce((s,x)=>s+x.total,0);
+        rows+=`<tr class="d"><td colspan="${ncol}">Total del ${fdm(it.g.f)}</td><td>${fmtTons(dia)}</td><td colspan="2"></td></tr>`;}
+      return;}
+    const t=it.t;bordo+=t.total;const nxi=items[i+1],nx=nxi?(nxi.t||{fecha:nxi.g.f}):null;
     const tb=b=>{const x=t.tons.find(y=>y.bodega===b);if(x)totB[b]=(totB[b]||0)+x.tons;return x?x.tons:0;};
-    rows+=`<tr class="t${claveT(t.fecha,t.turno)===cur?' on':''}" data-f="${t.fecha}" data-t="${esc(turnoNorm(t.turno))}" title="Tocá para corregir este turno"><td>${fdm(t.fecha)}</td><td>${esc(turnoNorm(t.turno))}</td>${multi?`<td class="e">${esc(S(t.exp)||expsBuque()[0])}</td>`:''}${Array.from({length:B},(_,k)=>celda(tb(k+1))).join('')}<td class="tb">${fmtTons(t.total)}</td><td>${fmtTons(bordo)}</td><td><div class="ac"><button type="button" data-ed>Editar</button><button type="button" data-cq>Cuadro</button></div></td></tr>`;
+    rows+=`<tr class="t${t.total?'':' sc'}${claveT(t.fecha,t.turno)===cur?' on':''}" data-f="${t.fecha}" data-t="${esc(turnoNorm(t.turno))}" title="Tocá para corregir este turno"><td>${fdm(t.fecha)}</td><td>${esc(turnoNorm(t.turno))}</td>${multi?`<td class="e">${esc(S(t.exp)||expsBuque()[0])}</td>`:''}${Array.from({length:B},(_,k)=>celda(tb(k+1))).join('')}<td class="tb">${t.total?fmtTons(t.total):'Sin carga'}</td><td>${fmtTons(bordo)}</td><td><div class="ac"><button type="button" data-ed>Editar</button>${t.total?'<button type="button" data-cq>Cuadro</button>':''}</div></td></tr>`;
     if(!nx||nx.fecha!==t.fecha){const dia=ts.filter(x=>x.fecha===t.fecha).reduce((s,x)=>s+x.total,0);
       rows+=`<tr class="d"><td colspan="${2+(multi?1:0)+B}">Total del ${fdm(t.fecha)}</td><td>${fmtTons(dia)}</td><td colspan="2"></td></tr>`;}});
   rows+=`<tr class="g"><td colspan="${2+(multi?1:0)}">Por bodega</td>${Array.from({length:B},(_,k)=>celda(totB[k+1])).join('')}<td>${fmtTons(bordo)}</td><td colspan="2"></td></tr>`;
@@ -2834,6 +2877,8 @@ function renderOps(){
   if(PASOS[nx]){$('opNextI').textContent=PASOS[nx][0];$('opNextT').textContent=PASOS[nx][1];$('opNextS').textContent='Próximo paso · '+PASOS[nx][2].charAt(0).toLowerCase()+PASOS[nx][2].slice(1);}
   else if(nx==='terminar'){$('opNextI').textContent='🏁';$('opNextT').textContent='Dar por terminado';$('opNextS').textContent='Ya zarpó · pasa a la lista de terminados';}
   else{$('opNextI').textContent='✔';$('opNextT').textContent='Buque terminado';$('opNextS').textContent='Si hace falta corregir algo, usá la lista de abajo';}
+  const fl=turnosFaltantes(state.v,state.d.turnos,state.v.estado);$('opFalta').hidden=!fl.length;
+  if(fl.length)$('opFalta').innerHTML=`<b>Falta cargar ${fl.length===1?'1 turno':fl.length+' turnos'}</b><div class="ch">${fl.slice(0,12).map(g=>`<button type="button" data-f="${g.f}" data-t="${g.t}">${fdm(g.f)} · ${g.t}</button>`).join('')}${fl.length>12?`<span>y ${fl.length-12} más</span>`:''}</div>`;
   renderTimeline();
   if(!op.t){const s=turnoSugerido();cargarBorrador(s.f,s.t);}else if(!$('opPT').contains(document.activeElement))sumasTurno();
   if(!$('otList').contains(document.activeElement))renderListaTurnos();
