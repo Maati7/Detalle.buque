@@ -547,6 +547,27 @@ body:not(.vdatos) #checks{display:none!important}
 .cubman summary{cursor:pointer;color:var(--harbor-2);font-size:14px;font-weight:600}
 .cubman input{margin-top:6px}
 @media (max-width:640px){.cubg{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.olist{margin-top:22px;border-top:1px solid var(--rule);padding-top:14px}
+.olist h4{margin:0 0 8px;font:700 21px/1 "Barlow Condensed",sans-serif;display:flex;align-items:baseline;gap:10px}
+.olist h4 small{font:400 14px Barlow,sans-serif;color:var(--steel)}
+.olist .tw{overflow-x:auto;border:1px solid var(--rule);border-radius:10px}
+.olist table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums;min-width:640px}
+.olist th{background:var(--paper);font-weight:600;color:var(--steel);text-align:right;padding:6px 8px;white-space:nowrap;border-bottom:1px solid var(--rule)}
+.olist th:nth-child(-n+2),.olist td:nth-child(-n+2),.olist th.e,.olist td.e{text-align:left}
+.olist td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}
+.olist tr.t{cursor:pointer}
+.olist tr.t:hover td{background:#F6FAFD}
+.olist tr.on td{background:#EEF5FB;box-shadow:inset 0 0 0 0 var(--harbor)}
+.olist tr.on td:first-child{box-shadow:inset 4px 0 0 var(--harbor)}
+.olist tr.d td{background:#FFF6B8;font-weight:700}
+.olist tr.g td{background:var(--paper);font-weight:700;border-bottom:0}
+.olist td .tb{font-weight:700}
+.olist td.z{color:#B8C2CC}
+.olist .ac{display:flex;gap:4px;justify-content:flex-end}
+.olist .ac button{border:1px solid var(--rule);background:#fff;border-radius:7px;padding:3px 8px;font:600 13px Barlow,sans-serif;color:var(--harbor);cursor:pointer}
+.olist .ac button:hover{border-color:var(--harbor)}
+.olist .vac{color:var(--steel);font-size:14px;padding:10px 0}
+.odel{color:var(--bad);margin-left:auto}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--harbor-2);outline-offset:2px}
 </style>
@@ -654,7 +675,8 @@ body:not(.vdatos) #checks{display:none!important}
               </div>
               <div class="obyexp" id="otByExp" hidden></div>
               <div class="orow2"><label>Observaciones<input id="otObs" placeholder="opcional"></label><label>Manos<input id="otManos" inputmode="numeric" placeholder="—"></label></div>
-              <div class="obar"><button class="btn" id="otSave">Guardar turno</button><button class="btn alt" id="otSaveCq">Guardar y ver el cuadro</button><span class="ohint">Enter pasa a la bodega siguiente</span></div>
+              <div class="obar"><button class="btn" id="otSave">Guardar turno</button><button class="btn alt" id="otSaveCq">Guardar y ver el cuadro</button><button type="button" class="link odel" id="otDel" hidden>Borrar este turno</button><span class="ohint">Enter pasa a la bodega siguiente</span></div>
+              <div class="olist" id="otList"></div>
             </div>
             <div id="opPD" hidden>
               <div class="oph"><h3>Demoras</h3><button type="button" class="mx oclose" aria-label="Cerrar">✕</button></div>
@@ -1262,7 +1284,7 @@ function celdas(){
     H14:S(v.otras),I15:num(v.eslora),I16:num(v.manga),I17:num(v.puntal),
     I18:S(v.caladoFin),F18:S(v.caladoIni),F19:'',
     G19:'T.R.B.:  '+milesTxt(v.trb), I19:'TRN:  '+milesTxt(v.trn),
-    F28:state.d.total, F33:S(v.armadores), C34:factorTxt(),
+    F28:state.d.total, F33:S(v.armadores), C34:S(v.factor),
     B35:v.demorasSN==='SI'?'SI ':(v.demorasSN||''), C35:v.demorasSN==='NO'?'':S(v.demoras),
     B37:S(v.habilita), C37:S(v.habilitaTurno)
   };
@@ -2656,11 +2678,11 @@ function cargarBorrador(f,t){
   pintarTurno();
 }
 function pintarTurno(){
-  const d=op.t,B=state.nBod||7;
+  const d=op.t,B=state.nBod||7;$('otDel').hidden=!d.ex;
   $('otFecha').value=d.f;
   $('otSeg').innerHTML=TURNOS4.map(t=>`<button type="button" data-t="${t}" class="${t===d.t?'on':''}" aria-pressed="${t===d.t}">${t}${buscarTurno(d.f,t)?'<span class="dot" title="Ya cargado"></span>':''}</button>`).join('');
   const ex=$('otEx');ex.hidden=!d.ex;ex.className='onote ya';ex.textContent=d.ex?'Este turno ya estaba cargado: lo que cambies lo corrige.':'';
-  pintarExp();
+  pintarExp();renderListaTurnos();
   const host=$('otBods');host.innerHTML='';host.style.setProperty('--nb',B);host.classList.toggle('pocas',d.on.size&&d.on.size<=3);
   for(let b=1;b<=B;b++){const on=d.on.has(b),c=document.createElement('div');c.className='obod '+(on?'on':'off');
     c.innerHTML=`<button type="button" aria-pressed="${on}" aria-label="Bodega ${b}: ${on?'operando':'parada'}">#${b}<u>${on?'operando':'parada'}</u></button><input inputmode="decimal" aria-label="Toneladas bodega ${b}" ${on?'':'disabled'}><small data-ac="${b}"></small>`;
@@ -2710,6 +2732,31 @@ function guardarTurno(verCuadro){
   if(verCuadro)abrirCuadroTurno(t);
 }
 $('otSave').addEventListener('click',()=>guardarTurno(false));
+$('otDel').addEventListener('click',()=>{const d=op.t,t=buscarTurno(d.f,d.t);if(!t)return;
+  if(!confirm(`¿Borrar el turno ${d.t} del ${fdm(d.f)} (${fmtTons(t.total)} t)?`))return;
+  const antes=JSON.parse(JSON.stringify(state.d.turnos));state.d.turnos.splice(state.d.turnos.indexOf(t),1);
+  recalcTurnos();renderTurnosEdit();refresh();guardar();cargarBorrador(d.f,d.t);
+  toastUndo(`Turno ${d.t} del ${fdm(d.f)} borrado.`,()=>{state.d.turnos=antes;recalcTurnos();renderTurnosEdit();refresh();guardar();cargarBorrador(d.f,d.t);});});
+/* ---- lista de todos los turnos cargados ---- */
+function renderListaTurnos(){
+  const host=$('otList');if(!host||!state.d)return;const ts=turnosOrden(),B=Math.max(state.nBod||7,...ts.flatMap(t=>t.tons.map(x=>x.bodega)));
+  if(!ts.length){host.innerHTML='<h4>Turnos cargados</h4><div class="vac">Todavía no hay turnos. Los que se guarden aparecen acá para revisarlos y corregirlos.</div>';return;}
+  const multi=expsBuque().length>1,cur=op.t?claveT(op.t.f,op.t.t):'';let bordo=0;const totB={};
+  const celda=n=>n?`<td>${fmtTons(n)}</td>`:'<td class="z">—</td>';
+  let rows='';
+  ts.forEach((t,i)=>{bordo+=t.total;const nx=ts[i+1];
+    const tb=b=>{const x=t.tons.find(y=>y.bodega===b);if(x)totB[b]=(totB[b]||0)+x.tons;return x?x.tons:0;};
+    rows+=`<tr class="t${claveT(t.fecha,t.turno)===cur?' on':''}" data-f="${t.fecha}" data-t="${esc(turnoNorm(t.turno))}" title="Tocá para corregir este turno"><td>${fdm(t.fecha)}</td><td>${esc(turnoNorm(t.turno))}</td>${multi?`<td class="e">${esc(S(t.exp)||expsBuque()[0])}</td>`:''}${Array.from({length:B},(_,k)=>celda(tb(k+1))).join('')}<td class="tb">${fmtTons(t.total)}</td><td>${fmtTons(bordo)}</td><td><div class="ac"><button type="button" data-ed>Editar</button><button type="button" data-cq>Cuadro</button></div></td></tr>`;
+    if(!nx||nx.fecha!==t.fecha){const dia=ts.filter(x=>x.fecha===t.fecha).reduce((s,x)=>s+x.total,0);
+      rows+=`<tr class="d"><td colspan="${2+(multi?1:0)+B}">Total del ${fdm(t.fecha)}</td><td>${fmtTons(dia)}</td><td colspan="2"></td></tr>`;}});
+  rows+=`<tr class="g"><td colspan="${2+(multi?1:0)}">Por bodega</td>${Array.from({length:B},(_,k)=>celda(totB[k+1])).join('')}<td>${fmtTons(bordo)}</td><td colspan="2"></td></tr>`;
+  host.innerHTML=`<h4>Turnos cargados <small>${ts.length} turno${ts.length>1?'s':''} · ${fmtTons(bordo)} t a bordo · tocá uno para corregirlo</small></h4>
+    <div class="tw"><table><thead><tr><th>Fecha</th><th>Turno</th>${multi?'<th class="e">Exportador</th>':''}${Array.from({length:B},(_,k)=>`<th>#${k+1}</th>`).join('')}<th>Total</th><th>A bordo</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+$('otList').addEventListener('click',e=>{const tr=e.target.closest('tr.t');if(!tr)return;const t=buscarTurno(tr.dataset.f,tr.dataset.t);
+  if(e.target.closest('[data-cq]')){if(t)abrirCuadroTurno(t);return;}
+  cargarBorrador(tr.dataset.f,tr.dataset.t);$('opPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>{const i=$('otBods').querySelector('.obod.on input');if(i)i.focus({preventScroll:true});},300);});
 $('otSaveCq').addEventListener('click',()=>guardarTurno(true));
 
 /* ---- demoras ---- */
@@ -2789,6 +2836,7 @@ function renderOps(){
   else{$('opNextI').textContent='✔';$('opNextT').textContent='Buque terminado';$('opNextS').textContent='Si hace falta corregir algo, usá la lista de abajo';}
   renderTimeline();
   if(!op.t){const s=turnoSugerido();cargarBorrador(s.f,s.t);}else if(!$('opPT').contains(document.activeElement))sumasTurno();
+  if(!$('otList').contains(document.activeElement))renderListaTurnos();
   if(!$('opPD').contains(document.activeElement)||document.activeElement.closest('#odCuadro'))renderOdCuadro();
   pintarPanel();
 }
@@ -2828,7 +2876,7 @@ const SECC=[
   {id:'ident',t:'Identificación',d:'Códigos, bandera y de dónde viene.',f:['codigo','matricula','imo','proc']},
   {id:'horarios',t:'Horarios',d:'También se cargan con un toque desde Operación.',f:['rada','atraco','habilitado','comenzo','finalizo','zarpo']},
   {id:'medidas',t:'Medidas y calados',d:'Del certificado del buque y los calados de entrada y salida.',f:['eslora','manga','puntal','trn','trb','caladoIni','caladoFin']},
-  {id:'plano',t:'Plano',d:'Del plano de carga. El total, el calado, el corto y el ETF salen en el cuadro de cada turno.',f:['planoTotal','caladoPlano','cortoCarga','etf']},
+  {id:'plano',t:'Plano',d:'Del plano de carga. El total, el calado, el corto y el ETF salen en el cuadro de cada turno.',f:['planoTotal','caladoPlano','factor','cortoCarga','etf']},
   {id:'personal',t:'Control y personal',d:'Quiénes intervienen en la operación.',f:['control','coordinador','reviso','estibaje','opip','armadores','otras']},
   {id:'planilla',t:'Planilla',adm:1,d:'Lo que completa administración para la planilla.',f:['nro','expTabla','draft','muelle','pip','pb','habilita','habilitaTurno','observaciones','demorasSN','demoras']},
 ];
@@ -2924,7 +2972,6 @@ function renderSec(forzar){
         box.appendChild(c);}
     }
     host.appendChild(box);}
-  if(s.id==='plano')bloqueCubicaje(host);
   renderDatos();
 }
 
